@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -253,6 +252,9 @@
                     <li><a href="{% url 'daily_quiz' %}" class="nav-item {% if request.path == '/auth/quiz/' %}active{% endif %}">Quiz</a></li>
                     <li><a href="{% url 'generate_quiz' %}" class="nav-item {% if request.path == '/auth/generate-quiz/' %}active{% endif %}">Generate Quiz</a></li>
                     <li><a href="{% url 'user_files' %}" class="nav-item {% if request.path == '/auth/files/' %}active{% endif %}">My Files</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'classroom' in request.path %}active{% endif %}" href="{% url 'classroom_list' %}">Classrooms</a>
+                    </li>
                     <li>
                         <div class="user-menu">
                             <span class="username">{{ user.username }}</span>

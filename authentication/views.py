@@ -1,47 +1,45 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from .forms import SignupForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import HttpResponseForbidden, Http404
+from .forms import SignupForm, LoginForm
+from .models import UserProfile, Classroom
+import random
+import string
 from django.contrib import messages
 import uuid
 from django_auth_project.firebase import save_user_to_firebase
-from django.contrib.auth.decorators import login_required
 from .openai_service import extract_text_from_pdf, generate_quiz_from_text
 from django.http import JsonResponse
 from django_auth_project.firebase import upload_file_to_firebase
 import json
 from django_auth_project.firebase import database
+from django.contrib.auth.models import User
+
+from django_auth_project.firebase import (
+    create_classroom_in_firebase, 
+    add_student_to_classroom_firebase, 
+    get_classroom_students_firebase
+)
 
 def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Generate a Firebase UID before saving
-            firebase_uid = str(uuid.uuid4())
-            print(f"Generated Firebase UID: {firebase_uid}")
+            user = form.save()  # This already creates UserProfile
             
-            # Create the user without immediately saving to database
-            user = form.save(commit=False)
-            user.firebase_uid = firebase_uid
-            
-            # Save the user to Django database
-            user.save()
-            print(f"User {user.username} saved to Django database")
-            
-            # Save user to Firebase - direct call with clear printed output
-            firebase_success = save_user_to_firebase(
-                user_id=firebase_uid,
+            # Save to Firebase if needed
+            save_user_to_firebase(
+                user_id=str(user.id),
                 username=user.username,
-                role=user.role
+                role=form.cleaned_data.get('role')
             )
             
-            if firebase_success:
-                messages.success(request, "Account created successfully and synced with Firebase!")
-            else:
-                messages.warning(request, "Account created but could not be synced with Firebase.")
-            
-            # Log the user in
             login(request, user)
-            return redirect('home')  # Redirect to home page
+            return redirect('home')  # Or whatever your home URL name is
+        else:
+            print(f"Form errors: {form.errors}")
     else:
         form = SignupForm()
     
@@ -67,7 +65,20 @@ def login_view(request):
 @login_required
 def home_view(request):
     """View for the home page"""
-    return render(request, 'authentication/home.html')
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}  # Default to student role
+    )
+    
+    if created:
+        print(f"Created new UserProfile for {request.user.username}")
+    
+    context = {
+        'user_profile': user_profile,
+    }
+    
+    return render(request, 'authentication/home.html', context)
 
 @login_required
 def chatbot_view(request):
@@ -353,3 +364,227 @@ def submit_quiz_view(request):
         print(f"Error submitting quiz: {str(e)}")
         messages.error(request, f"Error submitting quiz: {str(e)}")
         return redirect('daily_quiz')
+
+def register(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # Save the user
+            user = form.save()
+            
+            # Get role from form data
+            role = form.cleaned_data.get('role')
+            
+            # Create a user profile with the role
+            UserProfile.objects.create(user=user, role=role)
+            
+            # Save to Firebase if needed
+            save_user_to_firebase(
+                user_id=str(user.id),
+                username=user.username,
+                role=role
+            )
+            
+            login(request, user)
+            return redirect('home')  # Adjust redirect as needed
+        else:
+            # Print errors for debugging
+            print(f"Form errors: {form.errors}")
+            print(f"Role field errors: {form.errors.get('role', 'No role errors')}")
+            print(f"Submitted data: {request.POST}")
+    else:
+        form = SignupForm()
+    
+    return render(request, 'register.html', {'form': form})
+
+# Add these views
+@login_required
+def classroom_list_view(request):
+    """View for listing classrooms"""
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}
+    )
+    
+    context = {
+        'is_teacher': user_profile.role == UserProfile.TEACHER,
+    }
+    
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+        print(f"User profile found. Role: {profile.role}")
+    except UserProfile.DoesNotExist:
+        print("No user profile found!")
+        # Create a default profile
+        profile = UserProfile.objects.create(user=request.user, role=UserProfile.STUDENT)
+        print("Created default student profile")
+    
+    # Get user profile to check role
+    profile = UserProfile.objects.get(user=request.user)
+    
+    context = {
+        'is_teacher': profile.role == UserProfile.TEACHER,
+    }
+    
+    if profile.role == UserProfile.TEACHER:
+        # Teachers see classrooms they've created
+        context['created_classrooms'] = Classroom.objects.filter(teacher=request.user).order_by('-created_at')
+        context['joined_classrooms'] = request.user.joined_classrooms.all()
+    else:
+        # Students see classrooms they've joined
+        context['joined_classrooms'] = request.user.joined_classrooms.all()
+    
+    return render(request, 'authentication/classrooms.html', context)
+
+@login_required
+def create_classroom_view(request):
+    """View for creating a new classroom (teachers only)"""
+    # Check if user is a teacher
+    profile = UserProfile.objects.get(user=request.user)
+    
+    if profile.role != UserProfile.TEACHER:
+        messages.error(request, "Only teachers can create classrooms")
+        return redirect('classroom_list')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        
+        if not name:
+            messages.error(request, "Classroom name is required")
+            return redirect('create_classroom')
+        
+        # Generate a unique join code
+        join_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        while Classroom.objects.filter(join_code=join_code).exists():
+            join_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        
+        # Create classroom in Django
+        classroom = Classroom.objects.create(
+            name=name,
+            description=description,
+            join_code=join_code,
+            teacher=request.user
+        )
+        
+        # Create classroom in Firebase
+        firebase_uid = getattr(request.user, 'firebase_uid', str(request.user.id))
+        create_classroom_in_firebase(
+            classroom_id=str(classroom.id),
+            teacher_id=firebase_uid,
+            name=name,
+            description=description,
+            join_code=join_code
+        )
+        
+        messages.success(request, f"Classroom '{name}' created successfully with join code: {join_code}")
+        return redirect('classroom_detail', classroom_id=classroom.id)
+    
+    return render(request, 'authentication/create_classroom.html')
+
+@login_required
+def join_classroom_view(request):
+    """View for students to join a classroom"""
+    if request.method == 'POST':
+        join_code = request.POST.get('join_code', '').strip().upper()
+        
+        if not join_code:
+            messages.error(request, "Join code is required")
+            return redirect('join_classroom')
+        
+        try:
+            classroom = Classroom.objects.get(join_code=join_code)
+            
+            # Check if user is already in the classroom
+            if request.user in classroom.students.all():
+                messages.info(request, f"You are already a member of {classroom.name}")
+            else:
+                # Add user to classroom
+                classroom.students.add(request.user)
+                
+                # Add to Firebase
+                firebase_uid = getattr(request.user, 'firebase_uid', str(request.user.id))
+                add_student_to_classroom_firebase(str(classroom.id), firebase_uid)
+                
+                messages.success(request, f"Successfully joined {classroom.name}")
+            
+            return redirect('classroom_detail', classroom_id=classroom.id)
+            
+        except Classroom.DoesNotExist:
+            messages.error(request, "Invalid join code")
+    
+    return render(request, 'authentication/join_classroom.html')
+
+@login_required
+def classroom_detail_view(request, classroom_id):
+    """View a specific classroom"""
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user has access to this classroom
+    is_teacher = classroom.teacher == request.user
+    is_student = request.user in classroom.students.all()
+    
+    if not (is_teacher or is_student):
+        return HttpResponseForbidden("You don't have access to this classroom")
+    
+    # Get user profile to determine role
+    profile = UserProfile.objects.get(user=request.user)
+    
+    # Get list of students
+    students = classroom.students.all()
+    
+    # Get any classroom-specific content
+    # This could be quizzes, assignments, etc. that you implement later
+    
+    context = {
+        'classroom': classroom,
+        'is_teacher': is_teacher,
+        'is_student': is_student,
+        'user_role': profile.role,
+        'students': students,
+    }
+    
+    return render(request, 'authentication/classroom_detail.html', context)
+
+@login_required
+def leave_classroom_view(request, classroom_id):
+    """View for students to leave a classroom"""
+    if request.method != 'POST':
+        return redirect('classroom_detail', classroom_id=classroom_id)
+        
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is a student in this classroom
+    if request.user not in classroom.students.all():
+        messages.error(request, "You are not a member of this classroom")
+        return redirect('classroom_list')
+    
+    # Remove user from classroom
+    classroom.students.remove(request.user)
+    
+    # Update Firebase (requires implementation of remove_student_from_classroom_firebase)
+    # firebase_uid = getattr(request.user, 'firebase_uid', str(request.user.id))
+    # remove_student_from_classroom_firebase(str(classroom.id), firebase_uid)
+    
+    messages.success(request, f"You have left {classroom.name}")
+    return redirect('classroom_list')
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def logout_view(request):
+    """View for logging out users"""
+    logout(request)
+    return redirect('login')  # Redirect to login page after logout
+
+# Run this in a Django shell (python manage.py shell)
+from django.contrib.auth.models import User
+from authentication.models import UserProfile
+
+# Create profiles for all users who don't have one
+for user in User.objects.all():
+    UserProfile.objects.get_or_create(
+        user=user,
+        defaults={'role': 'student'}  # Default role
+    )

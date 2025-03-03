@@ -1,0 +1,108 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}{{ classroom.name }} - SriPedia{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ classroom.name }}</h1>
+        <div>
+            <a href="{% url 'classroom_list' %}" class="btn btn-outline-primary">Back to Classrooms</a>
+            {% if is_student %}
+            <form method="post" action="{% url 'leave_classroom' classroom.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to leave this classroom?')">Leave Classroom</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="mb-0">About</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ classroom.description|linebreaks }}</p>
+                    <p class="text-muted">Created by: {{ classroom.teacher.username }}</p>
+                </div>
+            </div>
+            
+            <!-- Future feature: Classroom resources/content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="mb-0">Learning Resources</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No resources available yet.</p>
+                    {% if is_teacher %}
+                    <a href="#" class="btn btn-sm btn-primary">Add Resource</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Future feature: Classroom quizzes -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="mb-0">Quizzes</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No quizzes available yet.</p>
+                    {% if is_teacher %}
+                    <a href="#" class="btn btn-sm btn-primary">Create Quiz</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            {% if is_teacher %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Classroom Information</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Join Code:</strong> {{ classroom.join_code }}</p>
+                    <p><strong>Created On:</strong> {{ classroom.created_at|date:"F j, Y" }}</p>
+                    <p><strong>Number of Students:</strong> {{ classroom.students.count }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Students</h3>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <ul class="list-group">
+                        {% for student in students %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ student.username }}
+                            {% if is_teacher %}
+                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No students have joined this classroom yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

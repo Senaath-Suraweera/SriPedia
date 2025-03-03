@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, db, storage
 from django.conf import settings
 import uuid
+import time
 
 firebase_app = None
 database = None
@@ -12,7 +13,7 @@ bucket = None
 def initialize_firebase():
     global firebase_app, database, bucket
     
-    if firebase_app is not None:
+    if (firebase_app is not None):
         return database  # Already initialized
     
     try:
@@ -211,4 +212,63 @@ def upload_file_to_firebase(file, user_id, file_name=None):
             except:
                 pass
         return None
+
+def create_classroom_in_firebase(classroom_id, teacher_id, name, description, join_code):
+    """Create a classroom in Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return False
+            
+        classroom_data = {
+            'id': classroom_id,
+            'teacher_id': teacher_id,
+            'name': name,
+            'description': description,
+            'join_code': join_code,
+            'created_at': {'timestamp': int(time.time() * 1000)}
+        }
+        
+        # Add to classrooms collection
+        ref = database.child('classrooms').child(classroom_id)
+        ref.set(classroom_data)
+        
+        return True
+    except Exception as e:
+        print(f"Error creating classroom in Firebase: {str(e)}")
+        return False
+
+def add_student_to_classroom_firebase(classroom_id, student_id):
+    """Add a student to a classroom in Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return False
+            
+        # Add to classroom's students
+        ref = database.child('classrooms').child(classroom_id).child('students').child(student_id)
+        ref.set(True)
+        
+        return True
+    except Exception as e:
+        print(f"Error adding student to classroom in Firebase: {str(e)}")
+        return False
+
+def get_classroom_students_firebase(classroom_id):
+    """Get all students in a classroom from Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return []
+            
+        students_refs = database.child('classrooms').child(classroom_id).child('students').get()
+        
+        if not students_refs:
+            return []
+            
+        student_ids = students_refs.keys()
+        return list(student_ids)
+    except Exception as e:
+        print(f"Error getting classroom students from Firebase: {str(e)}")
+        return []
 
