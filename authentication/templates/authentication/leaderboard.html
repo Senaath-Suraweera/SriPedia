@@ -1,0 +1,98 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+
+{% block title %}Leaderboard - SriPedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaderboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .leaderboard-table th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .leaderboard-table tr:nth-child(even) {
+        background-color: var(--gray-100);
+    }
+    
+    .leaderboard-table tr:hover {
+        background-color: var(--gray-200);
+    }
+    
+    .rank {
+        font-weight: 700;
+        width: 60px;
+        text-align: center;
+    }
+    
+    .rank-1 {
+        color: gold;
+    }
+    
+    .rank-2 {
+        color: silver;
+    }
+    
+    .rank-3 {
+        color: #cd7f32; /* bronze */
+    }
+    
+    .score {
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-container">
+    <h1>Leaderboard</h1>
+    <p>See how you rank against other SriPedia users!</p>
+    
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in leaderboard %}
+                <tr>
+                    <td class="rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">
+                        {{ forloop.counter }}
+                    </td>
+                    <td>{{ user.username }}</td>
+                    <td class="score">{{ user.score }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No leaderboard data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
