@@ -1,0 +1,464 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+
+{% block title %}Daily Quiz - SriPedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quiz-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+    
+    .quiz-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .quiz-date {
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quiz-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .quiz-intro {
+        font-size: 1.1rem;
+        color: #4b5563;
+        margin-bottom: 2rem;
+    }
+    
+    .quiz-progress {
+        margin-bottom: 2rem;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        height: 8px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background-color: #4f46e5;
+        transition: width 0.3s ease;
+    }
+    
+    .question-container {
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 2rem;
+    }
+    
+    .question-number {
+        font-weight: 600;
+        color: #4f46e5;
+        margin-bottom: 0.5rem;
+    }
+    
+    .question-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    
+    .options-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .option-label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .option-label:hover {
+        border-color: #a5b4fc;
+        background-color: #f9fafb;
+    }
+    
+    .option-radio {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 50%;
+        outline: none;
+        margin: 0;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .option-radio:checked {
+        border-color: #4f46e5;
+        background-color: #4f46e5;
+    }
+    
+    .option-radio:checked::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: white;
+    }
+    
+    .option-text {
+        flex: 1;
+    }
+    
+    .quiz-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .quiz-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .next-btn {
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+    }
+    
+    .next-btn:hover {
+        background-color: #4338ca;
+    }
+    
+    .next-btn:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+    }
+    
+    .prev-btn {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #d1d5db;
+    }
+    
+    .prev-btn:hover {
+        background-color: #e5e7eb;
+    }
+    
+    .submit-btn {
+        background-color: #059669;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .submit-btn:hover {
+        background-color: #047857;
+    }
+    
+    .quiz-results {
+        text-align: center;
+    }
+    
+    .result-score {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #4f46e5;
+        margin: 1rem 0;
+    }
+    
+    .result-message {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    
+    .results-btn {
+        display: inline-block;
+        background-color: #4f46e5;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    
+    .results-btn:hover {
+        background-color: #4338ca;
+    }
+    
+    .quiz-sources {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .sources-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+    
+    .sources-list {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+    
+    .error-message {
+        background-color: #fee2e2;
+        color: #ef4444;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .correct-answer {
+        border-color: #10b981 !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    
+    .incorrect-answer {
+        border-color: #ef4444 !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .explanation {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #f3f4f6;
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if not error %}
+        <div class="quiz-header">
+            <div class="quiz-date">{{ quiz_date }}</div>
+            <h1 class="quiz-title">Daily Quiz</h1>
+            <p class="quiz-intro">Test your knowledge with today's quiz about Sri Lanka.</p>
+        </div>
+        
+        {% if not quiz_completed %}
+        <div class="quiz-progress">
+            <div class="progress-bar" id="quizProgress" style="width: 0%;"></div>
+        </div>
+        
+        <form id="quizForm" method="post" action="{% url 'submit_quiz' %}">
+            {% csrf_token %}
+            <input type="hidden" name="quiz_date" value="{{ quiz_date }}">
+            
+            <div id="questionContainers">
+                {% for question in questions %}
+                <div class="question-container" id="question{{ forloop.counter }}" style="{% if forloop.counter > 1 %}display: none;{% endif %}">
+                    <div class="question-number">Question {{ forloop.counter }} of {{ questions|length }}</div>
+                    <div class="question-text">{{ question.question }}</div>
+                    
+                    <div class="options-list">
+                        {% for option in question.options %}
+                        <label class="option-label">
+                            <input type="radio" name="answer{{ forloop.parentloop.counter0 }}" value="{{ forloop.counter0 }}" class="option-radio">
+                            <span class="option-text">{{ option }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="quiz-actions">
+                <button type="button" id="prevBtn" class="quiz-btn prev-btn" style="display: none;">Previous</button>
+                <button type="button" id="nextBtn" class="quiz-btn next-btn" disabled>Next</button>
+                <button type="submit" id="submitBtn" class="quiz-btn submit-btn" style="display: none;">Submit Quiz</button>
+            </div>
+        </form>
+        
+        {% else %}
+        <!-- Quiz Results Display -->
+        <div class="quiz-results">
+            <h2>You've completed today's quiz!</h2>
+            <div class="result-score">{{ quiz_results.score }}%</div>
+            <div class="result-message">
+                You answered {{ quiz_results.correct }} out of {{ quiz_results.total }} questions correctly.
+            </div>
+            
+            <div>
+                <a href="{% url 'leaderboard' %}" class="results-btn">View Leaderboard</a>
+            </div>
+            
+            <div class="quiz-review">
+                <h3>Review Your Answers</h3>
+                
+                {% for question in questions %}
+                <div class="question-container">
+                    <div class="question-number">Question {{ forloop.counter }}</div>
+                    <div class="question-text">{{ question.question }}</div>
+                    
+                    <div class="options-list">
+                        {% for option in question.options %}
+                        <div class="option-label {% if forloop.counter0 == question.correct_index and quiz_results.answers|get_item:forloop.parentloop.counter0 == question.correct_index %}correct-answer{% elif forloop.counter0 == quiz_results.answers|get_item:forloop.parentloop.counter0 and quiz_results.answers|get_item:forloop.parentloop.counter0 != question.correct_index %}incorrect-answer{% endif %}">
+                            <span class="option-text">{{ option }}</span>
+                            {% if forloop.counter0 == question.correct_index %}
+                            <span class="correct-indicator">✓</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if sources %}
+        <div class="quiz-sources">
+            <div class="sources-title">Sources:</div>
+            <ul class="sources-list">
+                {% for source in sources %}
+                <li>{{ source.filename }} (Pages {{ source.pages }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if not quiz_completed %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questions = document.querySelectorAll('.question-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressBar = document.getElementById('quizProgress');
+        
+        let currentQuestion = 0;
+        const totalQuestions = questions.length;
+        
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        // Show specific question
+        function showQuestion(index) {
+            // Hide all questions
+            questions.forEach(question => question.style.display = 'none');
+            
+            // Show the current question
+            questions[index].style.display = 'block';
+            
+            // Update buttons
+            prevBtn.style.display = index > 0 ? 'block' : 'none';
+            nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+            submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+            
+            // Check if current question has been answered
+            const options = questions[index].querySelectorAll('.option-radio');
+            const answered = Array.from(options).some(option => option.checked);
+            nextBtn.disabled = !answered;
+            
+            // Update progress
+            updateProgress();
+        }
+        
+        // Initialize
+        showQuestion(0);
+        
+        // Previous button click
+        prevBtn.addEventListener('click', function() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        });
+        
+        // Next button click
+        nextBtn.addEventListener('click', function() {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        });
+        
+        // Enable Next button when an option is selected
+        questions.forEach((question, questionIndex) => {
+            const options = question.querySelectorAll('.option-radio');
+            options.forEach(option => {
+                option.addEventListener('change', function() {
+                    if (questionIndex === currentQuestion) {
+                        nextBtn.disabled = false;
+                    }
+                });
+            });
+        });
+        
+        // Form submission
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            // Validate that all questions have been answered
+            let allAnswered = true;
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const name = 'answer' + i;
+                const answered = document.querySelector(`input[name="${name}"]:checked`);
+                
+                if (!answered) {
+                    allAnswered = false;
+                    break;
+                }
+            }
+            
+            if (!allAnswered) {
+                e.preventDefault();
+                alert('Please answer all questions before submitting the quiz.');
+                
+                // Find first unanswered question
+                for (let i = 0; i < totalQuestions; i++) {
+                    const name = 'answer' + i;
+                    const answered = document.querySelector(`input[name="${name}"]:checked`);
+                    
+                    if (!answered) {
+                        currentQuestion = i;
+                        showQuestion(currentQuestion);
+                        break;
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

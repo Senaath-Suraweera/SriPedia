@@ -1,0 +1,4 @@
+# Add these dependencies
+openai==1.10.0
+pypdf2==3.0.1
+firebase-admin==6.2.0
