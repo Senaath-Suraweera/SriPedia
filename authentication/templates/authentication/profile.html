@@ -1,0 +1,169 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+
+{% block title %}My Profile - SriPedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-right: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-role {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    .profile-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .profile-card h2 {
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 0.8rem;
+    }
+    
+    .profile-info {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 1rem;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-light);
+    }
+    
+    .info-value {
+        color: var(--text-color);
+    }
+    
+    .edit-button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .edit-button:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        background-color: var(--gray-100);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ user.username|first|upper }}
+        </div>
+        <div>
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <div class="profile-role">{{ user.role|title }}</div>
+        </div>
+    </div>
+    
+    <div class="profile-card">
+        <h2>Account Information</h2>
+        <div class="profile-info">
+            <div class="info-label">Username:</div>
+            <div class="info-value">{{ user.username }}</div>
+            
+            <div class="info-label">Role:</div>
+            <div class="info-value">{{ user.role|title }}</div>
+            
+            <div class="info-label">Member Since:</div>
+            <div class="info-value">{{ user.date_joined|date:"F j, Y" }}</div>
+        </div>
+        <div style="margin-top: 2rem;">
+            <button class="edit-button">Edit Profile</button>
+        </div>
+    </div>
+    
+    <div class="profile-card">
+        <h2>Statistics</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-value">500</div>
+                <div class="stat-label">Points Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Quizzes Taken</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">85%</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Chat Sessions</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
