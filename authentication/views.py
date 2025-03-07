@@ -20,7 +20,10 @@ from django.contrib.auth.models import User
 from django_auth_project.firebase import (
     create_classroom_in_firebase, 
     add_student_to_classroom_firebase, 
-    get_classroom_students_firebase
+    get_classroom_students_firebase,
+    update_classroom_in_firebase,
+    update_classroom_join_code_in_firebase,
+    remove_student_from_classroom_firebase
 )
 
 def signup_view(request):
@@ -440,10 +443,14 @@ def classroom_list_view(request):
 @login_required
 def create_classroom_view(request):
     """View for creating a new classroom (teachers only)"""
-    # Check if user is a teacher
-    profile = UserProfile.objects.get(user=request.user)
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}
+    )
     
-    if profile.role != UserProfile.TEACHER:
+    # Check if user is a teacher
+    if user_profile.role != UserProfile.TEACHER:
         messages.error(request, "Only teachers can create classrooms")
         return redirect('classroom_list')
     
@@ -469,10 +476,9 @@ def create_classroom_view(request):
         )
         
         # Create classroom in Firebase
-        firebase_uid = getattr(request.user, 'firebase_uid', str(request.user.id))
         create_classroom_in_firebase(
             classroom_id=str(classroom.id),
-            teacher_id=firebase_uid,
+            teacher_id=str(request.user.id),
             name=name,
             description=description,
             join_code=join_code
@@ -569,6 +575,140 @@ def leave_classroom_view(request, classroom_id):
     
     messages.success(request, f"You have left {classroom.name}")
     return redirect('classroom_list')
+
+@login_required
+def remove_student_view(request, classroom_id, student_id):
+    """View for teachers to remove a student from their classroom"""
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}
+    )
+    
+    # Check if user is a teacher
+    if user_profile.role != UserProfile.TEACHER:
+        messages.error(request, "Only teachers can remove students")
+        return redirect('classroom_list')
+    
+    if request.method != 'POST':
+        return redirect('classroom_detail', classroom_id=classroom_id)
+    
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is the teacher of this classroom
+    if classroom.teacher != request.user:
+        messages.error(request, "You can only manage your own classrooms")
+        return redirect('classroom_list')
+    
+    # Get the student
+    try:
+        student = User.objects.get(id=student_id)
+        
+        # Remove student from classroom
+        if student in classroom.students.all():
+            classroom.students.remove(student)
+            messages.success(request, f"{student.username} has been removed from the classroom")
+            
+            # Update Firebase
+            # You would need a function to remove student from Firebase
+            # remove_student_from_classroom_firebase(str(classroom.id), str(student.id))
+        else:
+            messages.error(request, f"{student.username} is not in this classroom")
+    except User.DoesNotExist:
+        messages.error(request, "Student not found")
+    
+    return redirect('classroom_detail', classroom_id=classroom_id)
+
+@login_required
+def edit_classroom_view(request, classroom_id):
+    """View for teachers to edit classroom details"""
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}
+    )
+    
+    # Check if user is a teacher
+    if user_profile.role != UserProfile.TEACHER:
+        messages.error(request, "Only teachers can edit classrooms")
+        return redirect('classroom_list')
+    
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is the teacher of this classroom
+    if classroom.teacher != request.user:
+        messages.error(request, "You can only edit your own classrooms")
+        return redirect('classroom_list')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        
+        if not name:
+            messages.error(request, "Classroom name is required")
+        else:
+            # Update classroom
+            classroom.name = name
+            classroom.description = description
+            classroom.save()
+            
+            # Update Firebase
+            update_classroom_in_firebase(
+                classroom_id=str(classroom.id),
+                name=name,
+                description=description
+            )
+            
+            messages.success(request, "Classroom updated successfully")
+            return redirect('classroom_detail', classroom_id=classroom.id)
+    
+    context = {
+        'classroom': classroom
+    }
+    
+    return render(request, 'authentication/edit_classroom.html', context)
+
+@login_required
+def regenerate_join_code_view(request, classroom_id):
+    """View for teachers to regenerate a classroom join code"""
+    # Get or create user profile
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'role': UserProfile.STUDENT}
+    )
+    
+    # Check if user is a teacher
+    if user_profile.role != UserProfile.TEACHER:
+        messages.error(request, "Only teachers can regenerate join codes")
+        return redirect('classroom_list')
+    
+    if request.method != 'POST':
+        return redirect('classroom_detail', classroom_id=classroom_id)
+    
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is the teacher of this classroom
+    if classroom.teacher != request.user:
+        messages.error(request, "You can only manage your own classrooms")
+        return redirect('classroom_list')
+    
+    # Generate a new unique join code
+    new_join_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    while Classroom.objects.filter(join_code=new_join_code).exists():
+        new_join_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    
+    # Update join code
+    classroom.join_code = new_join_code
+    classroom.save()
+    
+    # Update Firebase
+    update_classroom_join_code_in_firebase(
+        classroom_id=str(classroom.id),
+        new_join_code=new_join_code
+    )
+    
+    messages.success(request, f"Join code regenerated successfully. New code: {new_join_code}")
+    return redirect('classroom_detail', classroom_id=classroom.id)
 
 from django.contrib.auth import logout
 from django.shortcuts import redirect

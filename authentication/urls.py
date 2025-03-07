@@ -21,4 +21,7 @@ urlpatterns = [
     path('classrooms/join/', views.join_classroom_view, name='join_classroom'),
     path('classrooms/<int:classroom_id>/', views.classroom_detail_view, name='classroom_detail'),
     path('classrooms/<int:classroom_id>/leave/', views.leave_classroom_view, name='leave_classroom'),
+    path('classrooms/<int:classroom_id>/edit/', views.edit_classroom_view, name='edit_classroom'),
+    path('classrooms/<int:classroom_id>/regenerate-code/', views.regenerate_join_code_view, name='regenerate_join_code'),
+    path('classrooms/<int:classroom_id>/remove-student/<int:student_id>/', views.remove_student_view, name='remove_student'),
 ]

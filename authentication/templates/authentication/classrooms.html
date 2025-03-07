@@ -1,4 +1,4 @@
-{% extends 'authentication/base.html' %}
+{% extends 'authentication/base_logged_in.html' %}
 {% load static %}
 
 {% block title %}My Classrooms - SriPedia{% endblock %}
@@ -41,7 +41,7 @@
                     <div class="card-footer bg-transparent">
                         <div class="d-flex justify-content-between">
                             <small class="text-muted">Join Code: {{ classroom.join_code }}</small>
-                            <a href="{% url 'classroom_detail' classroom.id %}" class="btn btn-sm btn-primary">View</a>
+                            <a href="{% url 'classroom_detail' classroom.id %}" class="btn btn-sm btn-primary">Manage</a>
                         </div>
                     </div>
                 </div>

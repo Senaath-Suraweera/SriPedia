@@ -272,3 +272,60 @@ def get_classroom_students_firebase(classroom_id):
         print(f"Error getting classroom students from Firebase: {str(e)}")
         return []
 
+def update_classroom_in_firebase(classroom_id, name, description):
+    """Update classroom details in Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return False
+            
+        update_data = {
+            'name': name,
+            'description': description,
+        }
+        
+        # Update classroom
+        ref = database.child('classrooms').child(classroom_id)
+        ref.update(update_data)
+        
+        return True
+    except Exception as e:
+        print(f"Error updating classroom in Firebase: {str(e)}")
+        return False
+
+def update_classroom_join_code_in_firebase(classroom_id, new_join_code):
+    """Update classroom join code in Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return False
+            
+        # Update join code
+        ref = database.child('classrooms').child(classroom_id)
+        ref.child('join_code').set(new_join_code)
+        
+        return True
+    except Exception as e:
+        print(f"Error updating classroom join code in Firebase: {str(e)}")
+        return False
+
+def remove_student_from_classroom_firebase(classroom_id, student_id):
+    """Remove a student from a classroom in Firebase"""
+    try:
+        if not database:
+            print("Firebase not initialized")
+            return False
+            
+        # Remove from classroom's students
+        ref = database.child('classrooms').child(classroom_id).child('students').child(student_id)
+        ref.remove()
+        
+        # Remove from student's joined classrooms
+        ref = database.child('users').child(student_id).child('joined_classrooms').child(classroom_id)
+        ref.remove()
+        
+        return True
+    except Exception as e:
+        print(f"Error removing student from classroom in Firebase: {str(e)}")
+        return False
+

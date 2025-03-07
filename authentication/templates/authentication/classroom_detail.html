@@ -1,4 +1,4 @@
-{% extends 'authentication/base.html' %}
+{% extends 'authentication/base_logged_in.html' %}
 {% load static %}
 
 {% block title %}{{ classroom.name }} - SriPedia{% endblock %}
@@ -9,6 +9,9 @@
         <h1>{{ classroom.name }}</h1>
         <div>
             <a href="{% url 'classroom_list' %}" class="btn btn-outline-primary">Back to Classrooms</a>
+            {% if is_teacher %}
+            <a href="{% url 'edit_classroom' classroom.id %}" class="btn btn-primary">Edit Classroom</a>
+            {% endif %}
             {% if is_student %}
             <form method="post" action="{% url 'leave_classroom' classroom.id %}" class="d-inline">
                 {% csrf_token %}
@@ -74,7 +77,13 @@
                     <h3 class="mb-0">Classroom Information</h3>
                 </div>
                 <div class="card-body">
-                    <p><strong>Join Code:</strong> {{ classroom.join_code }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="mb-0"><strong>Join Code:</strong> {{ classroom.join_code }}</p>
+                        <form method="post" action="{% url 'regenerate_join_code' classroom.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Regenerate</button>
+                        </form>
+                    </div>
                     <p><strong>Created On:</strong> {{ classroom.created_at|date:"F j, Y" }}</p>
                     <p><strong>Number of Students:</strong> {{ classroom.students.count }}</p>
                 </div>
@@ -92,7 +101,10 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ student.username }}
                             {% if is_teacher %}
-                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                            <form method="post" action="{% url 'remove_student' classroom.id student.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to remove this student?')">Remove</button>
+                            </form>
                             {% endif %}
                         </li>
                         {% endfor %}
