@@ -26,6 +26,18 @@ from django_auth_project.firebase import (
     remove_student_from_classroom_firebase
 )
 
+# Add this function near the top of the file or with your other views
+def home_page(request):
+    """View for the home page"""
+    from django.shortcuts import redirect
+    
+    # If the user is authenticated, redirect to their dashboard
+    if request.user.is_authenticated:
+        # You can replace 'dashboard' with the appropriate URL name for your app
+        return redirect('dashboard')
+    # Otherwise redirect to login
+    return redirect('login')
+
 def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -68,16 +80,14 @@ def login_view(request):
 @login_required
 def home_view(request):
     """View for the home page"""
-    # Get or create user profile
+    user = request.user
     user_profile, created = UserProfile.objects.get_or_create(
-        user=request.user,
-        defaults={'role': UserProfile.STUDENT}  # Default to student role
+        user=user,
+        defaults={'role': 'student'}
     )
     
-    if created:
-        print(f"Created new UserProfile for {request.user.username}")
-    
     context = {
+        'user': user,
         'user_profile': user_profile,
     }
     
@@ -723,8 +733,125 @@ from django.contrib.auth.models import User
 from authentication.models import UserProfile
 
 # Create profiles for all users who don't have one
-for user in User.objects.all():
-    UserProfile.objects.get_or_create(
+def get_all_users():
+    return User.objects.all()
+
+# Add this if it doesn't exist
+@login_required
+def dashboard(request):
+    """User dashboard view"""
+    # Add your dashboard logic here
+    return render(request, 'authentication/dashboard.html')
+
+from django.contrib.auth.decorators import login_required
+
+# Add this function to your views.py file
+@login_required
+def dashboard(request):
+    """
+    Dashboard view for authenticated users
+    """
+    # Get user information
+    user = request.user
+    
+    # Get any additional data you want to display on the dashboard
+    # For example: recent activities, statistics, etc.
+    
+    context = {
+        'user': user,
+        # Add additional context data here
+    }
+    
+    return render(request, 'authentication/dashboard.html', context)
+
+# Add this function if you want to keep the URL as 'signup/'
+def signup(request):
+    """View for user registration"""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Create a profile for the user
+            UserProfile.objects.create(user=user, role='student')
+            login(request, user)
+            messages.success(request, "Registration successful!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Registration failed. Please check the form.")
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'authentication/signup.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth import login
+
+# Add these imports if needed
+from .models import UserProfile
+from .forms import UserRegistrationForm
+
+@login_required
+def dashboard_view(request):
+    """View for the dashboard page"""
+    user = request.user
+    user_profile, created = UserProfile.objects.get_or_create(
         user=user,
-        defaults={'role': 'student'}  # Default role
+        defaults={'role': 'student'}  # Default to student role
     )
+    
+    context = {
+        'user': user,
+        'user_profile': user_profile,
+        # Add additional context data here
+    }
+    
+    return render(request, 'authentication/dashboard.html', context)
+
+@login_required
+def home_view(request):
+    """View for the home page"""
+    user = request.user
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=user,
+        defaults={'role': 'student'}
+    )
+    
+    context = {
+        'user': user,
+        'user_profile': user_profile,
+    }
+    
+    return render(request, 'authentication/home.html', context)
+
+def signup(request):
+    """View for user registration with role selection"""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            # Save the user
+            user = form.save()
+            
+            # Get the selected role from the form
+            selected_role = form.cleaned_data.get('role')
+            
+            # Create a profile for the user with the selected role
+            UserProfile.objects.create(
+                user=user,
+                role=selected_role
+            )
+            
+            # Log the user in
+            login(request, user)
+            
+            # Show success message
+            messages.success(request, "Registration successful! Welcome to SriPedia.")
+            return redirect('dashboard')
+        else:
+            # Show error message
+            messages.error(request, "Registration failed. Please check the form.")
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'authentication/signup.html', {'form': form})

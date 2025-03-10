@@ -1,195 +1,302 @@
-{% extends 'authentication/base_auth.html' %}
+{% extends 'authentication/base.html' %}
 {% load static %}
 
 {% block title %}Sign Up - SriPedia{% endblock %}
 
-{% block content %}
-<div class="auth-container">
-    <div class="auth-form">
-        <div class="form-header">
-            <h2>Create Account</h2>
-            <p>Join SriPedia to explore Sri Lanka's rich heritage</p>
-        </div>
-        
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            {% endfor %}
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_username" class="form-label">Username</label>
-                <input type="text" name="username" id="id_username" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="id_email" class="form-label">Email Address</label>
-                <input type="email" name="email" id="id_email" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="id_password1" class="form-label">Password</label>
-                <input type="password" name="password1" id="id_password1" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="id_password2" class="form-label">Confirm Password</label>
-                <input type="password" name="password2" id="id_password2" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="id_role" class="form-label">I am a:</label>
-                <select name="role" id="id_role" class="form-control">
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-block">Create Account</button>
-        </form>
-        
-        <div class="form-footer">
-            Already have an account? <a href="{% url 'login' %}">Log In</a>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
 {% block extra_css %}
 <style>
-    .auth-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 150px);
-        padding: 2rem 1rem;
+    .signup-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
     }
-
-    .auth-form {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        width: 100%;
-        max-width: 450px;
+    
+    .card {
+        border-radius: 10px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
     }
-
-    .form-header {
-        text-align: center;
-        margin-bottom: 2rem;
+    
+    .card-header {
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 1.5rem;
     }
-
-    .form-header h2 {
-        font-size: 2rem;
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
+    
+    .card-header h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.75rem;
     }
-
-    .form-header p {
-        color: var(--text-light);
+    
+    .card-body {
+        padding: 1.5rem;
     }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
+    
     .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
         font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
     }
-
+    
     .form-control {
-        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
         padding: 0.75rem 1rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         font-size: 1rem;
-        transition: border-color 0.15s ease;
     }
-
+    
     .form-control:focus {
         border-color: var(--primary-color);
-        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
     }
-
-    .btn {
+    
+    .btn-primary {
         background-color: var(--primary-color);
-        color: white;
+        border-color: var(--primary-color);
+        border-radius: 6px;
         padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.15s ease;
-    }
-
-    .btn:hover {
-        background-color: var(--primary-dark);
-    }
-
-    .btn-block {
-        width: 100%;
-        display: block;
-    }
-
-    .form-footer {
-        text-align: center;
-        margin-top: 1.5rem;
-        color: var(--text-light);
-    }
-
-    .form-footer a {
-        color: var(--primary-color);
-        text-decoration: none;
         font-weight: 500;
+        transition: all 0.3s ease;
     }
-
-    .form-footer a:hover {
-        text-decoration: underline;
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-
-    .alert {
+    
+    .role-selection {
+        margin: 1.5rem 0;
+    }
+    
+    .role-option {
+        display: flex;
+        align-items: center;
         padding: 1rem;
+        border: 1px solid #ddd;
         border-radius: 8px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
-
-    .alert-danger {
-        background-color: #fee2e2;
-        color: #ef4444;
-        border: 1px solid #fecaca;
+    
+    .role-option:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .role-option.selected {
+        border-color: var(--primary-color);
+        background-color: rgba(var(--primary-rgb), 0.05);
+    }
+    
+    .role-option input {
+        margin-right: 1rem;
+    }
+    
+    .role-details {
+        flex-grow: 1;
+    }
+    
+    .role-title {
+        font-weight: 600;
+        color: #343a40;
+        margin-bottom: 0.25rem;
+    }
+    
+    .role-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .helptext {
+        display: block;
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .errorlist {
+        list-style: none;
+        color: #dc3545;
+        padding-left: 0;
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
     }
 </style>
 {% endblock %}
 
-<ul class="nav-links" id="navLinks">
-    {% if user.is_authenticated %}
-        <!-- Navigation for logged-in users -->
-        <li><a href="{% url 'home' %}" class="nav-item {% if request.path == '/auth/home/' %}active{% endif %}">Home</a></li>
-        <li><a href="{% url 'chatbot' %}" class="nav-item {% if request.path == '/auth/chatbot/' %}active{% endif %}">Chatbot</a></li>
-        <li><a href="{% url 'leaderboard' %}" class="nav-item {% if request.path == '/auth/leaderboard/' %}active{% endif %}">Leaderboard</a></li>
-        <li><a href="{% url 'daily_quiz' %}" class="nav-item {% if request.path == '/auth/quiz/' %}active{% endif %}">Quiz</a></li>
-        <li><a href="{% url 'generate_quiz' %}" class="nav-item {% if request.path == '/auth/generate-quiz/' %}active{% endif %}">Generate Quiz</a></li>
-        <li><a href="{% url 'user_files' %}" class="nav-item {% if request.path == '/auth/files/' %}active{% endif %}">My Files</a></li>
-        <li>
-            <div class="user-menu">
-                <span class="username">{{ user.username }}</span>
-                <div class="dropdown-content">
-                    <a href="{% url 'profile' %}">Profile</a>
-                    <a href="{% url 'logout' %}">Logout</a>
+{% block content %}
+<div class="signup-container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Create Your SriPedia Account</h2>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Username field -->
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if form.username.help_text %}
+                        <small class="helptext">{{ form.username.help_text }}</small>
+                    {% endif %}
+                </div>
+                
+                <!-- First name field -->
+                <div class="mb-3">
+                    <label for="id_first_name" class="form-label">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <!-- Last name field -->
+                <div class="mb-3">
+                    <label for="id_last_name" class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <!-- Email field -->
+                <div class="mb-3">
+                    <label for="id_email" class="form-label">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <!-- Password field -->
+                <div class="mb-3">
+                    <label for="id_password1" class="form-label">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                        <small class="helptext">{{ form.password1.help_text }}</small>
+                    {% endif %}
+                </div>
+                
+                <!-- Confirm password field -->
+                <div class="mb-3">
+                    <label for="id_password2" class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if form.password2.help_text %}
+                        <small class="helptext">{{ form.password2.help_text }}</small>
+                    {% endif %}
+                </div>
+                
+                <!-- Role selection -->
+                <div class="role-selection">
+                    <h4>Select your role</h4>
+                    
+                    <div class="role-option" onclick="selectRole('student')">
+                        <input type="radio" name="role" id="id_role_0" value="student" required>
+                        <div class="role-details">
+                            <h5 class="role-title">Student</h5>
+                            <p class="role-description">Join classrooms, take quizzes, and learn about Sri Lanka</p>
+                        </div>
+                    </div>
+                    
+                    <div class="role-option" onclick="selectRole('teacher')">
+                        <input type="radio" name="role" id="id_role_1" value="teacher" required>
+                        <div class="role-details">
+                            <h5 class="role-title">Teacher</h5>
+                            <p class="role-description">Create classrooms, manage students, and share learning resources</p>
+                        </div>
+                    </div>
+                    
+                    {% if form.role.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.role.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center">
+                <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
             </div>
-        </li>
-    {% else %}
-        <!-- Navigation for non-logged-in users -->
-        <li><a href="{% url 'home' %}" class="nav-item {% if request.path == '/auth/home/' %}active{% endif %}">Home</a></li>
-        <li><a href="{% url 'login' %}" class="nav-item {% if request.path == '/auth/login/' %}active{% endif %}">Login</a></li>
-        <li><a href="{% url 'signup' %}" class="nav-item {% if request.path == '/auth/signup/' %}active{% endif %}">Sign Up</a></li>
-    {% endif %}
-</ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectRole(roleValue) {
+        // Set the radio button
+        document.querySelector(`input[value="${roleValue}"]`).checked = true;
+        
+        // Update visual styling
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        document.querySelector(`input[value="${roleValue}"]`).closest('.role-option').classList.add('selected');
+    }
+    
+    // Initialize form fields with Bootstrap classes
+    document.addEventListener('DOMContentLoaded', function() {
+        const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+        formControls.forEach(input => {
+            input.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

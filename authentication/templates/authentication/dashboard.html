@@ -1,0 +1,310 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+
+{% block title %}Dashboard - SriPedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .welcome-card {
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-card h2 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+    }
+    
+    .welcome-card p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+    
+    .stats-row {
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        height: 100%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #f0f0f0;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card .stat-title {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-card .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .stat-card .stat-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #343a40;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .action-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+        background-color: white;
+        border: 1px solid #f0f0f0;
+        height: 100%;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .action-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .action-card .card-title {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--primary-color);
+    }
+    
+    .action-card .card-text {
+        color: #6c757d;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+    }
+    
+    .action-card .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.25rem;
+        color: var(--primary-color);
+    }
+    
+    .btn-action {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .recent-activity {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+    }
+    
+    .activity-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(var(--primary-rgb), 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .activity-content {
+        flex-grow: 1;
+    }
+    
+    .activity-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        color: #343a40;
+    }
+    
+    .activity-time {
+        font-size: 0.8rem;
+        color: #999;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-card {
+            padding: 1.5rem;
+        }
+        
+        .welcome-card h2 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-card">
+        <h2>Welcome back, {{ user.first_name|default:user.username }}!</h2>
+        <p>Here's what's happening in your SriPedia world today.</p>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="row stats-row">
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon">🏆</div>
+                <h3 class="stat-value">{{ user_profile.points|default:"0" }}</h3>
+                <p class="stat-title">Total Points</p>
+                <p class="stat-text">Keep earning points by completing quizzes</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon">📚</div>
+                <h3 class="stat-value">{{ total_classrooms|default:"0" }}</h3>
+                <p class="stat-title">Classrooms</p>
+                <p class="stat-text">Classrooms you're participating in</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon">📝</div>
+                <h3 class="stat-value">{{ quizzes_completed|default:"0" }}</h3>
+                <p class="stat-title">Quizzes Done</p>
+                <p class="stat-text">Quizzes you've completed so far</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon">📊</div>
+                <h3 class="stat-value">{{ leaderboard_rank|default:"N/A" }}</h3>
+                <p class="stat-title">Rank</p>
+                <p class="stat-text">Your position on the leaderboard</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Section -->
+    <h3 class="section-title">Quick Actions</h3>
+    <div class="row">
+        <div class="col-lg-4 col-md-6">
+            <div class="action-card">
+                <div class="card-body text-center">
+                    <div class="card-icon">🤖</div>
+                    <h5 class="card-title">Chat with SriPedia AI</h5>
+                    <p class="card-text">Ask questions and get instant answers about Sri Lanka's history and culture.</p>
+                    <a href="{% url 'chatbot' %}" class="btn btn-action">Open Chatbot</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="action-card">
+                <div class="card-body text-center">
+                    <div class="card-icon">🏆</div>
+                    <h5 class="card-title">Take Daily Quiz</h5>
+                    <p class="card-text">Test your knowledge and earn points with our daily quiz challenge.</p>
+                    <a href="{% url 'daily_quiz' %}" class="btn btn-action">Start Quiz</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="action-card">
+                <div class="card-body text-center">
+                    <div class="card-icon">👨‍👩‍👧‍👦</div>
+                    <h5 class="card-title">Join a Classroom</h5>
+                    <p class="card-text">Connect with teachers and fellow students in virtual classrooms.</p>
+                    <a href="{% url 'join_classroom' %}" class="btn btn-action">Join Classroom</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Section -->
+    <h3 class="section-title mt-4">Recent Activity</h3>
+    <div class="recent-activity">
+        {% if recent_activities %}
+            {% for activity in recent_activities %}
+                <div class="activity-item d-flex align-items-center">
+                    <div class="activity-icon">
+                        {% if 'quiz' in activity.activity_type %}🏆
+                        {% elif 'classroom' in activity.activity_type %}👨‍👩‍👧‍👦
+                        {% elif 'chatbot' in activity.activity_type %}🤖
+                        {% else %}📝
+                        {% endif %}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ activity.description }}</div>
+                        <div class="activity-time">{{ activity.timestamp|date:"M d, Y" }} at {{ activity.timestamp|time:"g:i A" }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">No recent activity to show.</p>
+                <p>Start exploring SriPedia to see your activities here!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

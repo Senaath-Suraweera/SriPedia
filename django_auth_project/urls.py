@@ -1,16 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView  # Import this if you want to redirect
+from django.views.generic import RedirectView
+from authentication import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
-    
-    # Add a URL pattern for the root path. Choose one of these options:
-    
-    # Option 1: Redirect to the auth page
-    path('', RedirectView.as_view(url='/auth/', permanent=False)),
-    
-    # Option 2: If you have a home view in one of your apps
-    # path('', home_view, name='home'),
+    path('accounts/login/', auth_views.login_view, name='login'),
+    # Update this to use the new home page URL
+    path('', RedirectView.as_view(url='/auth/home/', permanent=False), name='home'),
 ]

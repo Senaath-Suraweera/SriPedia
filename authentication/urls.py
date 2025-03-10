@@ -5,9 +5,10 @@ from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
-    path('signup/', views.signup_view, name='signup'),
-    path('logout/', views.logout_view, name='logout'),  # Now this should work
-    path('', views.home_view, name='home'),
+    path('signup/', views.signup, name='signup'),
+    path('logout/', views.logout_view, name='logout'),
+    path('', views.dashboard_view, name='home'),
+    path('home/', views.home_view, name='home_page'),  # For /auth/home/
     path('chatbot/', views.chatbot_view, name='chatbot'),
     path('leaderboard/', views.leaderboard_view, name='leaderboard'),
     path('quiz/', views.daily_quiz_view, name='daily_quiz'),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('classrooms/<int:classroom_id>/edit/', views.edit_classroom_view, name='edit_classroom'),
     path('classrooms/<int:classroom_id>/regenerate-code/', views.regenerate_join_code_view, name='regenerate_join_code'),
     path('classrooms/<int:classroom_id>/remove-student/<int:student_id>/', views.remove_student_view, name='remove_student'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 ]

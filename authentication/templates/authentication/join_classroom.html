@@ -1,42 +1,157 @@
-{% extends 'authentication/base.html' %}
+{% extends 'authentication/base_logged_in.html' %}
 {% load static %}
 
 {% block title %}Join Classroom - SriPedia{% endblock %}
 
+{% block extra_css %}
+<style>
+    .join-classroom-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .card {
+        border-radius: 10px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 1.5rem;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.75rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 6px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-text {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .alert {
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-success {
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+        color: #0f5132;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c2c7;
+        color: #842029;
+    }
+    
+    .info-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .card-header {
+            padding: 1.25rem;
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container my-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Join a Classroom</h2>
-                </div>
-                <div class="card-body">
-                    {% if messages %}
-                    <div class="messages mb-4">
-                        {% for message in messages %}
+<div class="join-classroom-container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Join a Classroom</h2>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
                         <div class="alert alert-{{ message.tags }}" role="alert">
                             {{ message }}
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    <p class="card-text">Enter the classroom join code provided by your teacher.</p>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="join_code" class="form-label">Join Code</label>
-                            <input type="text" class="form-control" id="join_code" name="join_code" required>
-                            <div class="form-text">Enter the 6-character code (letters and numbers).</div>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Join Classroom</button>
-                            <a href="{% url 'classroom_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                        </div>
-                    </form>
+                    {% endfor %}
                 </div>
+            {% endif %}
+            
+            <p class="card-text">Enter the classroom join code provided by your teacher to access learning materials, assignments, and discussions.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="join_code" class="form-label">Join Code</label>
+                    <input type="text" class="form-control" id="join_code" name="join_code" placeholder="Enter the 8-character code" required>
+                    <div class="info-text">Join codes are case-sensitive and must be entered exactly as provided.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Join Classroom</button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center">
+                <p>Need to create your own classroom instead?</p>
+                <a href="{% url 'create_classroom' %}" class="btn btn-outline-primary">Create Classroom</a>
             </div>
         </div>
     </div>

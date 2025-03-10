@@ -141,3 +141,7 @@ FIREBASE_CONFIG = {
 
 # Add OpenAI API key
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')  # Replace with your actual API key
+
+# Add these lines if they don't exist
+LOGIN_REDIRECT_URL = '/auth/dashboard/'  # Replace with your actual dashboard URL
+LOGIN_URL = '/auth/login/'
