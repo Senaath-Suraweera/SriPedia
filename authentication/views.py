@@ -26,6 +26,63 @@ from django_auth_project.firebase import (
     remove_student_from_classroom_firebase
 )
 
+# Add these imports at the top
+from firebase_admin import storage
+import firebase_admin
+import logging
+import os
+import datetime
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
+# Add this function to safely initialize Firebase Storage
+def get_firebase_storage():
+    """
+    Safely get a reference to Firebase Storage.
+    Returns the bucket or None if there's an error.
+    """
+    try:
+        # Check if Firebase has been initialized
+        if firebase_admin._apps:
+            # Use existing app
+            logger.info("Using existing Firebase app")
+            app = firebase_admin.get_app()
+        else:
+            logger.warning("Firebase not initialized, attempting initialization now")
+            
+            # Get the path to credentials
+            firebase_cred_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                            'firebase_credentials', 'serviceAccountKey.json')
+            
+            # Debug: Print the credential path and check if file exists
+            logger.info(f"Looking for credentials at: {firebase_cred_path}")
+            if (os.path.exists(firebase_cred_path)):
+                logger.info(f"Credentials file exists, size: {os.path.getsize(firebase_cred_path)} bytes")
+            else:
+                logger.error(f"Credentials file not found at: {firebase_cred_path}")
+                return None
+            
+            # Initialize Firebase
+            from firebase_admin import credentials
+            try:
+                cred = credentials.Certificate(firebase_cred_path)
+                app = firebase_admin.initialize_app(cred, {
+                    'storageBucket': 'sripedia-2a129.appspot.com'
+                })
+                logger.info("Firebase initialized successfully")
+            except Exception as e:
+                logger.error(f"Firebase initialization error: {str(e)}")
+                return None
+        
+        # Get the bucket using the app reference
+        bucket = storage.bucket(app=app)
+        return bucket
+    
+    except Exception as e:
+        logger.error(f"Error connecting to Firebase Storage: {str(e)}")
+        return None
+
 # Add this function near the top of the file or with your other views
 def home_page(request):
     """View for the home page"""
@@ -39,43 +96,45 @@ def home_page(request):
     return redirect('login')
 
 def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')  # Redirect if already logged in
+    
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save()  # This already creates UserProfile
+            user = form.save()  # This creates both User and UserProfile
             
-            # Save to Firebase if needed
-            save_user_to_firebase(
-                user_id=str(user.id),
-                username=user.username,
-                role=form.cleaned_data.get('role')
-            )
-            
+            # Log the user in after signup
             login(request, user)
-            return redirect('home')  # Or whatever your home URL name is
-        else:
-            print(f"Form errors: {form.errors}")
+            
+            messages.success(request, f"Welcome, {user.username}! Your account has been created successfully.")
+            return redirect('dashboard')  # Redirect to dashboard after signup
     else:
         form = SignupForm()
     
     return render(request, 'authentication/signup.html', {'form': form})
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')  # Redirect if already logged in
+        
     if request.method == 'POST':
-        # Process login
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        # Authenticate user
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            return redirect('home')  # Redirect to home page after login
-        else:
-            return render(request, 'authentication/login.html', {'error': 'Invalid username or password'})
-    
-    return render(request, 'authentication/login.html')
+            
+            # Remember me functionality
+            if not form.cleaned_data.get('remember_me', False):
+                # Session expires when browser closes
+                request.session.set_expiry(0)
+                
+            messages.success(request, f"Welcome back, {user.username}!")
+            return redirect('dashboard')  # Redirect to dashboard after login
+    else:
+        form = LoginForm()
+        
+    return render(request, 'authentication/login.html', {'form': form})
 
 @login_required
 def home_view(request):
@@ -216,70 +275,64 @@ def generate_quiz_view(request):
 
 @login_required
 def user_files_view(request):
-    """View for displaying all files uploaded by the user directly from Firebase Storage"""
+    """View for displaying and uploading user files"""
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    
+    files_list = []
+    error_message = None
+    
     try:
-        from django_auth_project.firebase import bucket
+        # Try to get the Firebase Storage bucket
+        bucket = get_firebase_storage()
         
-        if not bucket:
-            raise Exception("Firebase Storage not initialized")
-        
-        # Get the user's folder prefix
-        user_prefix = f"user_files/{request.user.firebase_uid}/"
-        
-        # List all blobs with the user's prefix
-        blobs = bucket.list_blobs(prefix=user_prefix)
-        
-        # Convert to a list of file objects
-        files = []
-        for blob in blobs:
-            # Skip folders or empty entries
-            if blob.name == user_prefix or blob.name.endswith('/'):
-                continue
+        if bucket:
+            # List user files
+            user_folder = f"user_files/{request.user.id}/"
+            blobs = bucket.list_blobs(prefix=user_folder)
+            
+            for blob in blobs:
+                # Skip directory markers
+                if blob.name.endswith('/'):
+                    continue
+                    
+                # Get filename from path
+                filename = blob.name.split('/')[-1]
                 
-            # Get file metadata
-            file_name = blob.name.split('/')[-1]
-            file_url = blob.public_url
+                try:
+                    # Generate a signed URL that's valid for 1 hour
+                    signed_url = blob.generate_signed_url(
+                        version='v4',
+                        expiration=datetime.timedelta(hours=1),
+                        method='GET'
+                    )
+                except Exception as e:
+                    # Fall back to direct URL if signing fails
+                    signed_url = f"https://storage.googleapis.com/{bucket.name}/{blob.name}"
+                
+                files_list.append({
+                    'name': filename,
+                    'url': signed_url,
+                    'blob_name': blob.name,
+                    'size': blob.size,
+                    'updated': blob.updated,
+                })
+        else:
+            error_message = "Could not connect to file storage"
             
-            # Try to get creation time
-            try:
-                upload_date = blob.time_created.strftime('%Y-%m-%d %H:%M')
-            except:
-                upload_date = None
-            
-            # Get file size
-            try:
-                size_bytes = blob.size
-                if size_bytes < 1024:
-                    file_size = f"{size_bytes} B"
-                elif size_bytes < 1024 * 1024:
-                    file_size = f"{size_bytes / 1024:.1f} KB"
-                else:
-                    file_size = f"{size_bytes / (1024 * 1024):.1f} MB"
-            except:
-                file_size = "Unknown size"
-            
-            # Create a file object
-            files.append({
-                'name': file_name,
-                'url': file_url,
-                'upload_date': upload_date,
-                'size': file_size,
-                'content_type': blob.content_type,
-                'storage_path': blob.name
-            })
-        
-        # Sort files by name (or you could sort by upload date if available)
-        files.sort(key=lambda x: x['name'])
-        
-        return render(request, 'authentication/user_files.html', {
-            'files': files
-        })
     except Exception as e:
-        print(f"Error retrieving user files from storage: {str(e)}")
-        return render(request, 'authentication/user_files.html', {
-            'files': [],
-            'error': f"Could not load your files: {str(e)}"
-        })
+        logger.error(f"Error in user_files_view: {str(e)}")
+        error_message = f"Error loading files: {str(e)}"
+    
+    context = {
+        'user_profile': user_profile,
+        'files': files_list,
+        'error_message': error_message
+    }
+    
+    if error_message:
+        messages.error(request, error_message)
+    
+    return render(request, 'authentication/user_files.html', context)
 
 # Update the delete_file_view function
 
@@ -291,24 +344,27 @@ def delete_file_view(request):
             data = json.loads(request.body)
             storage_path = data.get('storage_path')
             
-            if not storage_path:
-                return JsonResponse({'success': False, 'error': 'No file path provided'})
+            # Check if the storage_path belongs to the current user
+            user_folder = f"user_files/{request.user.id}/"
+            if not storage_path.startswith(user_folder):
+                return JsonResponse({'error': 'Unauthorized access'}, status=403)
             
-            # Verify the file belongs to the current user
-            user_prefix = f"user_files/{request.user.firebase_uid}/"
-            if not storage_path.startswith(user_prefix):
-                return JsonResponse({'success': False, 'error': 'Access denied to this file'})
-            
-            # Delete from Firebase Storage
-            from django_auth_project.firebase import bucket
+            # Get Firebase storage bucket
+            bucket = get_firebase_storage()
+            if not bucket:
+                return JsonResponse({'error': 'Storage service unavailable'}, status=503)
+                
+            # Delete the file
             blob = bucket.blob(storage_path)
             blob.delete()
             
             return JsonResponse({'success': True})
+            
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            logger.error(f"Error in delete_file_view: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
     
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # Add a function to handle quiz submission
 
@@ -413,42 +469,27 @@ def register(request):
 # Add these views
 @login_required
 def classroom_list_view(request):
-    """View for listing classrooms"""
-    # Get or create user profile
-    user_profile, created = UserProfile.objects.get_or_create(
-        user=request.user,
-        defaults={'role': UserProfile.STUDENT}
-    )
-    
-    context = {
-        'is_teacher': user_profile.role == UserProfile.TEACHER,
-    }
-    
+    """View for listing user's classrooms"""
+    # Get user profile
     try:
-        profile = UserProfile.objects.get(user=request.user)
-        print(f"User profile found. Role: {profile.role}")
+        user_profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        print("No user profile found!")
-        # Create a default profile
-        profile = UserProfile.objects.create(user=request.user, role=UserProfile.STUDENT)
-        print("Created default student profile")
+        user_profile = UserProfile.objects.create(user=request.user, role=UserProfile.STUDENT)
     
-    # Get user profile to check role
-    profile = UserProfile.objects.get(user=request.user)
+    # Get classrooms where user is teacher
+    created_classrooms = Classroom.objects.filter(teacher=request.user)
+    
+    # Get classrooms where user is a student
+    joined_classrooms = Classroom.objects.filter(students=request.user)
     
     context = {
-        'is_teacher': profile.role == UserProfile.TEACHER,
+        'user_profile': user_profile,
+        'created_classrooms': created_classrooms,
+        'joined_classrooms': joined_classrooms,
+        'has_classrooms': created_classrooms.exists() or joined_classrooms.exists()
     }
     
-    if profile.role == UserProfile.TEACHER:
-        # Teachers see classrooms they've created
-        context['created_classrooms'] = Classroom.objects.filter(teacher=request.user).order_by('-created_at')
-        context['joined_classrooms'] = request.user.joined_classrooms.all()
-    else:
-        # Students see classrooms they've joined
-        context['joined_classrooms'] = request.user.joined_classrooms.all()
-    
-    return render(request, 'authentication/classrooms.html', context)
+    return render(request, 'authentication/classroom_list.html', context)
 
 @login_required
 def create_classroom_view(request):
@@ -565,25 +606,27 @@ def classroom_detail_view(request, classroom_id):
 
 @login_required
 def leave_classroom_view(request, classroom_id):
-    """View for students to leave a classroom"""
-    if request.method != 'POST':
-        return redirect('classroom_detail', classroom_id=classroom_id)
-        
+    """View for leaving a classroom"""
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    user_profile = get_object_or_404(UserProfile, user=request.user)
     
-    # Check if user is a student in this classroom
-    if request.user not in classroom.students.all():
-        messages.error(request, "You are not a member of this classroom")
+    # Check if user is a member of this classroom
+    if classroom not in user_profile.joined_classrooms.all():
+        messages.error(request, "You are not a member of this classroom.")
         return redirect('classroom_list')
     
-    # Remove user from classroom
-    classroom.students.remove(request.user)
+    # Check if user is the teacher of the classroom
+    if classroom.teacher == request.user:  # Compare with User model, not UserProfile
+        messages.error(request, "As the teacher, you cannot leave your own classroom. You may delete it instead.")
+        return redirect('classroom_detail', classroom_id=classroom_id)
     
-    # Update Firebase (requires implementation of remove_student_from_classroom_firebase)
-    # firebase_uid = getattr(request.user, 'firebase_uid', str(request.user.id))
-    # remove_student_from_classroom_firebase(str(classroom.id), firebase_uid)
+    # Remove the user from the classroom
+    user_profile.joined_classrooms.remove(classroom)
     
-    messages.success(request, f"You have left {classroom.name}")
+    # Add success message
+    messages.success(request, f"You have successfully left the classroom: {classroom.name}")
+    
+    # Redirect to classroom list
     return redirect('classroom_list')
 
 @login_required
@@ -855,3 +898,120 @@ def signup(request):
         form = UserRegistrationForm()
     
     return render(request, 'authentication/signup.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .forms import FirebaseSignupForm, FirebaseLoginForm
+from .models import UserProfile
+from .firebase_auth import create_firebase_user, authenticate_firebase_user, delete_firebase_user
+from django.db import transaction
+
+# Registration view using Firebase
+def firebase_signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+        
+    if request.method == 'POST':
+        form = FirebaseSignupForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            role = form.cleaned_data['role']
+            
+            # Create Firebase user first
+            firebase_result = create_firebase_user(email, password, display_name=username)
+            
+            if firebase_result['success']:
+                try:
+                    with transaction.atomic():
+                        # Create Django user (with unusable password)
+                        user = User.objects.create_user(
+                            username=username,
+                            email=email,
+                            # Don't store the real password in Django
+                            password=User.objects.make_random_password()  
+                        )
+                        
+                        # Create user profile with Firebase UID
+                        profile = UserProfile.objects.create(
+                            user=user,
+                            role=role,
+                            firebase_uid=firebase_result['uid']
+                        )
+                        
+                        # Login the user
+                        login(request, user)
+                        messages.success(request, f"Welcome {username}! Your account has been created.")
+                        return redirect('dashboard')
+                
+                except Exception as e:
+                    # Roll back Firebase user if Django user creation fails
+                    delete_firebase_user(firebase_result['uid'])
+                    messages.error(request, f"Error creating account: {str(e)}")
+            else:
+                messages.error(request, f"Firebase error: {firebase_result.get('error', 'Unknown error')}")
+    else:
+        form = FirebaseSignupForm()
+    
+    return render(request, 'authentication/signup.html', {'form': form})
+
+# Login view using Firebase
+def firebase_login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+        
+    if request.method == 'POST':
+        form = FirebaseLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            # Authenticate with Firebase
+            firebase_result = authenticate_firebase_user(email, password)
+            
+            if firebase_result['success']:
+                try:
+                    # Find user by email or Firebase UID
+                    user = User.objects.filter(email=email).first()
+                    
+                    if not user:
+                        # Try to find by Firebase UID if email lookup fails
+                        profile = UserProfile.objects.filter(firebase_uid=firebase_result['uid']).first()
+                        user = profile.user if profile else None
+                    
+                    if user:
+                        # Login the Django user
+                        login(request, user)
+                        
+                        # Store Firebase tokens in session
+                        request.session['firebase_token'] = firebase_result['token']
+                        request.session['firebase_refresh_token'] = firebase_result['refresh_token']
+                        
+                        messages.success(request, f"Welcome back, {user.username}!")
+                        return redirect('dashboard')
+                    else:
+                        messages.error(request, "User not found in system.")
+                except Exception as e:
+                    messages.error(request, f"Error during login: {str(e)}")
+            else:
+                messages.error(request, f"Authentication failed: {firebase_result.get('error', 'Invalid credentials')}")
+    else:
+        form = FirebaseLoginForm()
+    
+    return render(request, 'authentication/login.html', {'form': form})
+
+# Logout view
+def firebase_logout_view(request):
+    # Clear Firebase tokens from session
+    if 'firebase_token' in request.session:
+        del request.session['firebase_token']
+    if 'firebase_refresh_token' in request.session:
+        del request.session['firebase_refresh_token']
+    
+    # Logout from Django
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect('login')

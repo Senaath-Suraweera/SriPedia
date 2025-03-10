@@ -4,9 +4,10 @@ from django.views.generic import RedirectView
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
+    # Make sure you have a login view defined
     path('login/', views.login_view, name='login'),
-    path('signup/', views.signup, name='signup'),
-    path('logout/', views.logout_view, name='logout'),
+    path('signup/', views.firebase_signup_view, name='signup'),
+    path('logout/', views.firebase_logout_view, name='logout'),
     path('', views.dashboard_view, name='home'),
     path('home/', views.home_view, name='home_page'),  # For /auth/home/
     path('chatbot/', views.chatbot_view, name='chatbot'),

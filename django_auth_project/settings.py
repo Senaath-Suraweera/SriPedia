@@ -145,3 +145,7 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')  # Replace with your actual AP
 # Add these lines if they don't exist
 LOGIN_REDIRECT_URL = '/auth/dashboard/'  # Replace with your actual dashboard URL
 LOGIN_URL = '/auth/login/'
+
+# Configure email settings for password reset
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Use this for development
+# For production, use SMTP settings instead

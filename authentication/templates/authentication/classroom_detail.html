@@ -22,10 +22,11 @@
     </div>
     
     {% if messages %}
-    <div class="messages mb-4">
+    <div class="messages-container">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
     </div>
@@ -114,7 +115,38 @@
                     {% endif %}
                 </div>
             </div>
+            
+            {% if user_profile != classroom.created_by %}
+            <div class="leave-classroom-section mt-4">
+                <a href="{% url 'leave_classroom' classroom.id %}" class="btn btn-outline-danger" 
+                   onclick="return confirm('Are you sure you want to leave this classroom?')">
+                    <i class="bi bi-box-arrow-right"></i> Leave Classroom
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if user_profile != classroom.teacher %}
+            <div class="leave-classroom-section mt-4">
+                <a href="{% url 'leave_classroom' classroom.id %}" class="btn btn-outline-danger" 
+                   onclick="return confirm('Are you sure you want to leave this classroom?')">
+                    <i class="bi bi-box-arrow-right"></i> Leave Classroom
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const leaveButton = document.querySelector('.leave-classroom-section a');
+        if (leaveButton) {
+            leaveButton.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to leave this classroom? You will need the join code to rejoin.')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
