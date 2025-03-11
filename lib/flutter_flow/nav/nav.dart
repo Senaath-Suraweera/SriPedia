@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
@@ -9,6 +10,11 @@ import 'package:provider/provider.dart';
 import '/backend/backend.dart';
 
 import '/auth/base_auth_user_provider.dart';
+=======
+import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
+>>>>>>> Stashed changes
 =======
 import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
@@ -37,6 +43,7 @@ class AppStateNotifier extends ChangeNotifier {
   static AppStateNotifier? _instance;
   static AppStateNotifier get instance => _instance ??= AppStateNotifier._();
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   BaseAuthUser? initialUser;
   BaseAuthUser? user;
@@ -81,6 +88,9 @@ class AppStateNotifier extends ChangeNotifier {
 =======
   bool showSplashImage = true;
 >>>>>>> Stashed changes
+=======
+  bool showSplashImage = true;
+>>>>>>> Stashed changes
 
   void stopShowingSplashImage() {
     showSplashImage = false;
@@ -94,8 +104,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       errorBuilder: (context, state) =>
           appStateNotifier.loggedIn ? NavBarPage() : LoginPageWidget(),
+=======
+      errorBuilder: (context, state) => HomePageWidget(),
+>>>>>>> Stashed changes
 =======
       errorBuilder: (context, state) => HomePageWidget(),
 >>>>>>> Stashed changes
@@ -103,6 +117,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: '_initialize',
           path: '/',
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
           builder: (context, _) =>
               appStateNotifier.loggedIn ? NavBarPage() : LoginPageWidget(),
@@ -266,6 +281,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
 =======
           builder: (context, _) => HomePageWidget(),
 >>>>>>> Stashed changes
+=======
+          builder: (context, _) => HomePageWidget(),
+>>>>>>> Stashed changes
         ),
         FFRoute(
           name: HomePageWidget.routeName,
@@ -273,6 +291,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HomePageWidget(),
         ),
         FFRoute(
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
           name: HomePageAltWidget.routeName,
           path: HomePageAltWidget.routePath,
@@ -300,6 +319,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ProfilepageWidget.routePath,
           builder: (context, params) => ProfilepageWidget(),
 =======
+=======
+>>>>>>> Stashed changes
           name: QuizPageWidget.routeName,
           path: QuizPageWidget.routePath,
           builder: (context, params) => QuizPageWidget(),
@@ -323,6 +344,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: MainPageWidget.routeName,
           path: MainPageWidget.routePath,
           builder: (context, params) => MainPageWidget(),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
@@ -337,6 +361,7 @@ extension NavParamExtensions on Map<String, String?> {
 }
 
 extension NavigationExtensions on BuildContext {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   void goNamedAuth(
     String name,
@@ -374,6 +399,8 @@ extension NavigationExtensions on BuildContext {
 
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   void safePop() {
     // If there is only one route on the stack, navigate to the initial
     // page instead of popping.
@@ -385,6 +412,7 @@ extension NavigationExtensions on BuildContext {
   }
 }
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 extension GoRouterExtensions on GoRouter {
   AppStateNotifier get appState => AppStateNotifier.instance;
@@ -399,6 +427,8 @@ extension GoRouterExtensions on GoRouter {
       appState.updateNotifyOnAuthChange(false);
 }
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 extension _GoRouterStateExtensions on GoRouterState {
@@ -449,7 +479,10 @@ class FFParameters {
     ParamType type, {
     bool isList = false,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     List<String>? collectionNamePath,
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   }) {
@@ -470,7 +503,10 @@ class FFParameters {
       type,
       isList,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       collectionNamePath: collectionNamePath,
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     );
@@ -498,6 +534,7 @@ class FFRoute {
         name: name,
         path: path,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         redirect: (context, state) {
           if (appStateNotifier.shouldRedirect) {
             final redirectLocation = appStateNotifier.getRedirectLocation();
@@ -513,6 +550,8 @@ class FFRoute {
         },
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         pageBuilder: (context, state) {
           fixStatusBarOniOS16AndBelow(context);
           final ffParams = FFParameters(state, asyncParams);
@@ -522,6 +561,7 @@ class FFRoute {
                   builder: (context, _) => builder(context, ffParams),
                 )
               : builder(context, ffParams);
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
           final child = appStateNotifier.loading
               ? Container(
@@ -535,6 +575,9 @@ class FFRoute {
                   ),
                 )
               : page;
+=======
+          final child = page;
+>>>>>>> Stashed changes
 =======
           final child = page;
 >>>>>>> Stashed changes

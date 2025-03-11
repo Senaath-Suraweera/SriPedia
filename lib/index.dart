@@ -1,5 +1,6 @@
 // Export pages
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 export '/pages/login_page/login_page_widget.dart' show LoginPageWidget;
 export '/pages/register_account/register_account_widget.dart'
     show RegisterAccountWidget;
@@ -45,10 +46,15 @@ export '/pages/budget_d_e_l_e_t_e/budget_d_e_l_e_t_e_widget.dart'
     show BudgetDELETEWidget;
 export '/pages/profilepage/profilepage_widget.dart' show ProfilepageWidget;
 =======
+=======
+>>>>>>> Stashed changes
 export '/pages/home_page/home_page_widget.dart' show HomePageWidget;
 export '/pages/quiz_page/quiz_page_widget.dart' show QuizPageWidget;
 export '/pages/signup/signup_widget.dart' show SignupWidget;
 export '/pages/login/login_widget.dart' show LoginWidget;
 export '/pages/profile/profile_widget.dart' show ProfileWidget;
 export '/pages/main_page/main_page_widget.dart' show MainPageWidget;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes

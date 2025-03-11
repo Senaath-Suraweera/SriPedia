@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -8,6 +9,8 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 =======
+=======
+>>>>>>> Stashed changes
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -18,6 +21,9 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +34,11 @@ class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   static String routeName = 'homePage';
+=======
+  static String routeName = 'HomePage';
+>>>>>>> Stashed changes
 =======
   static String routeName = 'HomePage';
 >>>>>>> Stashed changes
@@ -39,7 +49,12 @@ class HomePageWidget extends StatefulWidget {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 class _HomePageWidgetState extends State<HomePageWidget> {
+=======
+class _HomePageWidgetState extends State<HomePageWidget>
+    with TickerProviderStateMixin {
+>>>>>>> Stashed changes
 =======
 class _HomePageWidgetState extends State<HomePageWidget>
     with TickerProviderStateMixin {
@@ -49,6 +64,11 @@ class _HomePageWidgetState extends State<HomePageWidget>
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  final animationsMap = <String, AnimationInfo>{};
+
+>>>>>>> Stashed changes
 =======
   final animationsMap = <String, AnimationInfo>{};
 
@@ -58,7 +78,10 @@ class _HomePageWidgetState extends State<HomePageWidget>
     super.initState();
     _model = createModel(context, () => HomePageModel());
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
     animationsMap.addAll({
       'columnOnPageLoadAnimation': AnimationInfo(
@@ -74,6 +97,9 @@ class _HomePageWidgetState extends State<HomePageWidget>
         ],
       ),
     });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   }
 
@@ -86,6 +112,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     return StreamBuilder<List<UsersRecord>>(
       stream: queryUsersRecord(
@@ -740,6 +767,8 @@ class _HomePageWidgetState extends State<HomePageWidget>
                             ),
                           ],
 =======
+=======
+>>>>>>> Stashed changes
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -868,6 +897,9 @@ class _HomePageWidgetState extends State<HomePageWidget>
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(8.0),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                         ),
                       ),
@@ -875,17 +907,23 @@ class _HomePageWidgetState extends State<HomePageWidget>
                   ],
                 ),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               ),
             ],
           ),
         );
       },
 =======
+=======
+>>>>>>> Stashed changes
               ],
             ).animateOnPageLoad(animationsMap['columnOnPageLoadAnimation']!),
           ),
         ),
       ),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     );
   }

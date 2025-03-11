@@ -1,5 +1,9 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # SriPedia
+=======
+# SriPediaFront
+>>>>>>> Stashed changes
 =======
 # SriPediaFront
 >>>>>>> Stashed changes

@@ -3,8 +3,12 @@ plugins {
    id "kotlin-android"
    id "dev.flutter.flutter-gradle-plugin"
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
    id "com.google.gms.google-services"  // Google Services plugin
 
+=======
+   
+>>>>>>> Stashed changes
 =======
    
 >>>>>>> Stashed changes
@@ -37,7 +41,11 @@ if (keystorePropertiesFile.exists()) {
 
 android {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     namespace "com.flutterflow.finwallet"
+=======
+    namespace "com.mycompany.sripediafront"
+>>>>>>> Stashed changes
 =======
     namespace "com.mycompany.sripediafront"
 >>>>>>> Stashed changes
@@ -65,7 +73,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         applicationId "com.flutterflow.finwallet"
+=======
+        applicationId "com.mycompany.sripediafront"
+>>>>>>> Stashed changes
 =======
         applicationId "com.mycompany.sripediafront"
 >>>>>>> Stashed changes

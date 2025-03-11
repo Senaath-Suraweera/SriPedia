@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     package="com.flutterflow.finwallet"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -10,6 +11,8 @@
     <application
         android:label="SriPedia"
 =======
+=======
+>>>>>>> Stashed changes
     package="com.mycompany.sripediafront"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -17,6 +20,9 @@
 
     <application
         android:label="SriPediaFront"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
@@ -58,7 +64,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 <data android:scheme="sripedia" android:host="sripedia.com" />
+=======
+                <data android:scheme="sripediafront" android:host="sripediafront.com" />
+>>>>>>> Stashed changes
 =======
                 <data android:scheme="sripediafront" android:host="sripediafront.com" />
 >>>>>>> Stashed changes

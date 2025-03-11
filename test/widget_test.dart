@@ -8,7 +8,11 @@
 import 'package:flutter_test/flutter_test.dart';
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import 'package:sri_pedia/main.dart';
+=======
+import 'package:sri_pedia_front/main.dart';
+>>>>>>> Stashed changes
 =======
 import 'package:sri_pedia_front/main.dart';
 >>>>>>> Stashed changes
