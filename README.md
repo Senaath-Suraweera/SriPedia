@@ -1,12 +1,4 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-# SriPedia
-=======
 # SriPediaFront
->>>>>>> Stashed changes
-=======
-# SriPediaFront
->>>>>>> Stashed changes
 
 A new Flutter project.
 

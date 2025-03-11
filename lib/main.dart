@@ -3,27 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import 'package:firebase_core/firebase_core.dart';
-import 'auth/firebase_auth/firebase_user_provider.dart';
-import 'auth/firebase_auth/auth_util.dart';
-
-import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
-import 'flutter_flow/internationalization.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
-=======
-import '/flutter_flow/flutter_flow_theme.dart';
-import 'flutter_flow/flutter_flow_util.dart';
->>>>>>> Stashed changes
-=======
-import '/flutter_flow/flutter_flow_theme.dart';
-import 'flutter_flow/flutter_flow_util.dart';
->>>>>>> Stashed changes
 import 'flutter_flow/nav/nav.dart';
 import 'index.dart';
 
@@ -32,14 +13,6 @@ void main() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  await initFirebase();
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   await FlutterFlowTheme.initialize();
 
   runApp(MyApp());
@@ -55,14 +28,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  Locale? _locale;
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
 
   late AppStateNotifier _appStateNotifier;
@@ -81,48 +46,12 @@ class _MyAppState extends State<MyApp> {
           .map((e) => getRoute(e))
           .toList();
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  late Stream<BaseAuthUser> userStream;
-
-  final authUserSub = authenticatedUserStream.listen((_) {});
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   @override
   void initState() {
     super.initState();
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    userStream = sriPediaFirebaseUserStream()
-      ..listen((user) {
-        _appStateNotifier.update(user);
-      });
-    jwtTokenStream.listen((_) {});
-    Future.delayed(
-      Duration(milliseconds: 1000),
-      () => _appStateNotifier.stopShowingSplashImage(),
-    );
-  }
-
-  @override
-  void dispose() {
-    authUserSub.cancel();
-
-    super.dispose();
-  }
-
-  void setLocale(String language) {
-    safeSetState(() => _locale = createLocale(language));
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   }
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
@@ -134,27 +63,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      title: 'SriPedia',
-      localizationsDelegates: [
-        FFLocalizationsDelegate(),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        FallbackMaterialLocalizationDelegate(),
-        FallbackCupertinoLocalizationDelegate(),
-      ],
-      locale: _locale,
-      supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-        Locale('de'),
-        Locale('ar'),
-      ],
-=======
-=======
->>>>>>> Stashed changes
       title: 'SriPediaFront',
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
@@ -162,10 +70,6 @@ class _MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', '')],
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: false,
@@ -179,103 +83,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-
-class NavBarPage extends StatefulWidget {
-  NavBarPage({Key? key, this.initialPage, this.page}) : super(key: key);
-
-  final String? initialPage;
-  final Widget? page;
-
-  @override
-  _NavBarPageState createState() => _NavBarPageState();
-}
-
-/// This is the private State class that goes with NavBarPage.
-class _NavBarPageState extends State<NavBarPage> {
-  String _currentPageName = 'MY_Card';
-  late Widget? _currentPage;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPageName = widget.initialPage ?? _currentPageName;
-    _currentPage = widget.page;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = {
-      'MY_Card': MYCardWidget(),
-      'MY_Budgets': MYBudgetsWidget(),
-      'MY_profilePage': MYProfilePageWidget(),
-    };
-    final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
-
-    return Scaffold(
-      body: _currentPage ?? tabs[_currentPageName],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (i) => safeSetState(() {
-          _currentPage = null;
-          _currentPageName = tabs.keys.toList()[i];
-        }),
-        backgroundColor: FlutterFlowTheme.of(context).darkBackground,
-        selectedItemColor: FlutterFlowTheme.of(context).primary,
-        unselectedItemColor: FlutterFlowTheme.of(context).grayLight,
-        showSelectedLabels: true,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.credit_card,
-              size: 24.0,
-            ),
-            activeIcon: FaIcon(
-              FontAwesomeIcons.solidCreditCard,
-              size: 20.0,
-            ),
-            label: FFLocalizations.of(context).getText(
-              'm8rhanhc' /* • */,
-            ),
-            tooltip: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.stacked_line_chart_rounded,
-              size: 24.0,
-            ),
-            activeIcon: Icon(
-              Icons.stacked_line_chart_rounded,
-              size: 24.0,
-            ),
-            label: FFLocalizations.of(context).getText(
-              'ofz2zvlc' /* • */,
-            ),
-            tooltip: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle_outlined,
-              size: 24.0,
-            ),
-            activeIcon: Icon(
-              Icons.account_circle_rounded,
-              size: 24.0,
-            ),
-            label: FFLocalizations.of(context).getText(
-              '8srr2k0j' /* • */,
-            ),
-            tooltip: '',
-          )
-        ],
-      ),
-    );
-  }
-}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

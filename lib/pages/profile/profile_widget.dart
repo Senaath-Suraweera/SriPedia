@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:math';
 import 'dart:ui';
+import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -133,6 +134,30 @@ class _ProfileWidgetState extends State<ProfileWidget>
                 ],
               ),
               Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+                child: FFButtonWidget(
+                  onPressed: () async {
+                    context.pushNamed(EditProfileWidget.routeName);
+                  },
+                  text: 'edit profile',
+                  options: FFButtonOptions(
+                    height: 40.0,
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                    iconPadding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    color: FlutterFlowTheme.of(context).tertiary,
+                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                          fontFamily: 'Inter Tight',
+                          color: Colors.white,
+                          letterSpacing: 0.0,
+                        ),
+                    elevation: 0.0,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+              ),
+              Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
                 child: Text(
                   'Viego',
@@ -150,7 +175,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                   'viego@bladeoftheruinking.com',
                   style: FlutterFlowTheme.of(context).labelSmall.override(
                         fontFamily: 'Inter',
-                        color: FlutterFlowTheme.of(context).caribbeanCurrent,
+                        color: FlutterFlowTheme.of(context).atomicTangerine,
                         fontSize: 14.0,
                         letterSpacing: 0.0,
                         fontWeight: FontWeight.w500,
@@ -160,18 +185,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
                   gradientType: GradientType.linear,
                 ),
               ),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(24.0, 12.0, 24.0, 0.0),
-                child: Text(
-                  'No Price is too great, No atrocity beyond my reach, For her i will do anything',
-                  textAlign: TextAlign.center,
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Inter',
-                        color: FlutterFlowTheme.of(context).accent4,
-                        letterSpacing: 0.0,
-                      ),
-                ),
-              ),
               Expanded(
                 child: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 44.0, 0.0, 0.0),
@@ -179,7 +192,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                     width: double.infinity,
                     height: 400.0,
                     decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
+                      color: Color(0xFF2A2A35),
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 3.0,
@@ -214,6 +227,8 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                       .headlineMedium
                                       .override(
                                         fontFamily: 'Inter Tight',
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryBackground,
                                         letterSpacing: 0.0,
                                       ),
                                 ),

@@ -5,15 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	<string>SriPedia</string>
-=======
 	<string>SriPediaFront</string>
->>>>>>> Stashed changes
-=======
-	<string>SriPediaFront</string>
->>>>>>> Stashed changes
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -21,58 +13,15 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	<string>SriPedia</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>es</string>
-		<string>de</string>
-		<string>ar</string>
-	</array>
-=======
 	<string>SriPediaFront</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
->>>>>>> Stashed changes
-=======
-	<string>SriPediaFront</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
->>>>>>> Stashed changes
 
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	<array>
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.googleusercontent.apps.180463640197-njukg0ftctm67shh0ta0riq9q1q54bep</string>
-                
-            </array>
-        </dict>
-
-        <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLName</key>
-        <string>sripedia.com</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-        <string>sripedia</string>
-=======
-=======
->>>>>>> Stashed changes
 	<array>        <dict>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
@@ -81,10 +30,6 @@
         <key>CFBundleURLSchemes</key>
         <array>
         <string>sripediafront</string>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         </array>
         </dict>
     </array>
@@ -97,18 +42,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	<key>NSCameraUsageDescription</key>
-    <string>In order to take a picture or video, this app requires permission to access the camera.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>In order to upload data, this app requires permission to access the photo library.</string>
-=======
 
->>>>>>> Stashed changes
-=======
-
->>>>>>> Stashed changes
 
 
 

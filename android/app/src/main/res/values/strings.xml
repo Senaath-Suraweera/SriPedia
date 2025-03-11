@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    <string name="app_name">SriPedia</string>
-=======
     <string name="app_name">SriPediaFront</string>
->>>>>>> Stashed changes
-=======
-    <string name="app_name">SriPediaFront</string>
->>>>>>> Stashed changes
 
 </resources>
