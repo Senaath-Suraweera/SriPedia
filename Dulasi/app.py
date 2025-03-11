@@ -2,8 +2,11 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalreyrivalChain
+from langchain.chat_models import ChatOpenAI
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -18,10 +21,20 @@ def get_text_chuncks(text):
     chunks = text_splitter.split_text(text)
     return chunks
 
-def get_vectorstore(text_chuncks):
+def get_vectorstore(text_chuncks):  
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_texts(texts=text_chuncks, embedding=embeddings)
     return vectorstore
+
+def get_conversation_chain(vectorstore):
+    llm = ChatOpenAI()
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    conversation_chain = ConversationalreyrivalChain.from_llms(
+        llm = llm,
+        retriver = vectorstore.as_retriver()
+        memory = memory
+    )
+    return conversation_chain
 
 def main():
     load_dotenv()
@@ -41,10 +54,14 @@ def main():
 
                 #get the text chuncks
                 text_chuncks = get_text_chuncks(raw_text)
-                st.write(text_chuncks)
+                st.write(text_chuncks)      
 
                 #create vector store
                 vectorstore = get_vectorstore(text_chuncks)
+
+                #create conversation chain
+                conversation = get_conversation_chain(vectorstore)
+
 
 if __name__ == '__main__':
     main()
