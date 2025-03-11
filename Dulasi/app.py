@@ -44,6 +44,9 @@ def main():
     load_dotenv()
     st.set_page_config(page_title="SriPedia")
 
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None
+
     # Initialize session state variables
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
@@ -90,8 +93,7 @@ def main():
                     st.session_state.conversation = get_conversation_chain(vectorstore)
                     st.success("Processing complete!")
                 except Exception as e:
-                    st.error(f"An error occurred: {e}")           
-    st.session_state.conversation      
+                    st.error(f"An error occurred: {e}")             
 
 if __name__ == '__main__':
     main()
