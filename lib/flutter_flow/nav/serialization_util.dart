@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:from_css_color/from_css_color.dart';
 
+<<<<<<< Updated upstream
 import '/backend/backend.dart';
 
+=======
+>>>>>>> Stashed changes
 import '../../flutter_flow/lat_lng.dart';
 import '../../flutter_flow/place.dart';
 import '../../flutter_flow/uploaded_file.dart';
@@ -30,6 +33,7 @@ String placeToString(FFPlace place) => jsonEncode({
 String uploadedFileToString(FFUploadedFile uploadedFile) =>
     uploadedFile.serialize();
 
+<<<<<<< Updated upstream
 const _kDocIdDelimeter = '|';
 String _serializeDocumentReference(DocumentReference ref) {
   final docIds = <String>[];
@@ -43,6 +47,8 @@ String _serializeDocumentReference(DocumentReference ref) {
   return docIds.reversed.join(_kDocIdDelimeter);
 }
 
+=======
+>>>>>>> Stashed changes
 String? serializeParam(
   dynamic param,
   ParamType paramType, {
@@ -84,11 +90,14 @@ String? serializeParam(
         data = uploadedFileToString(param as FFUploadedFile);
       case ParamType.JSON:
         data = json.encode(param);
+<<<<<<< Updated upstream
       case ParamType.DocumentReference:
         data = _serializeDocumentReference(param as DocumentReference);
       case ParamType.Document:
         final reference = (param as FirestoreRecord).reference;
         data = _serializeDocumentReference(reference);
+=======
+>>>>>>> Stashed changes
 
       default:
         data = null;
@@ -153,6 +162,7 @@ FFPlace placeFromString(String placeStr) {
 FFUploadedFile uploadedFileFromString(String uploadedFileStr) =>
     FFUploadedFile.deserialize(uploadedFileStr);
 
+<<<<<<< Updated upstream
 DocumentReference _deserializeDocumentReference(
   String refStr,
   List<String> collectionNamePath,
@@ -165,6 +175,8 @@ DocumentReference _deserializeDocumentReference(
   return FirebaseFirestore.instance.doc(path);
 }
 
+=======
+>>>>>>> Stashed changes
 enum ParamType {
   int,
   double,
@@ -177,17 +189,25 @@ enum ParamType {
   FFPlace,
   FFUploadedFile,
   JSON,
+<<<<<<< Updated upstream
 
   Document,
   DocumentReference,
+=======
+>>>>>>> Stashed changes
 }
 
 dynamic deserializeParam<T>(
   String? param,
   ParamType paramType,
+<<<<<<< Updated upstream
   bool isList, {
   List<String>? collectionNamePath,
 }) {
+=======
+  bool isList,
+) {
+>>>>>>> Stashed changes
   try {
     if (param == null) {
       return null;
@@ -200,8 +220,12 @@ dynamic deserializeParam<T>(
       return paramValues
           .where((p) => p is String)
           .map((p) => p as String)
+<<<<<<< Updated upstream
           .map((p) => deserializeParam<T>(p, paramType, false,
               collectionNamePath: collectionNamePath))
+=======
+          .map((p) => deserializeParam<T>(p, paramType, false))
+>>>>>>> Stashed changes
           .where((p) => p != null)
           .map((p) => p! as T)
           .toList();
@@ -232,8 +256,11 @@ dynamic deserializeParam<T>(
         return uploadedFileFromString(param);
       case ParamType.JSON:
         return json.decode(param);
+<<<<<<< Updated upstream
       case ParamType.DocumentReference:
         return _deserializeDocumentReference(param, collectionNamePath ?? []);
+=======
+>>>>>>> Stashed changes
 
       default:
         return null;
@@ -243,6 +270,7 @@ dynamic deserializeParam<T>(
     return null;
   }
 }
+<<<<<<< Updated upstream
 
 Future<dynamic> Function(String) getDoc(
   List<String> collectionNamePath,
@@ -272,3 +300,5 @@ Future<List<T>> Function(String) getDocList<T>(
     ).then((docs) => docs.where((d) => d != null).map((d) => d!).toList());
   };
 }
+=======
+>>>>>>> Stashed changes

@@ -12,7 +12,12 @@
     "new_identifier_name": "pubspec.yaml",
     "type": "D",
     "is_deleted": false,
+<<<<<<< Updated upstream
     "current_checksum": "74ac66c0b34b029b990e4cb5e9edf300c790bf7e36a1db851ad5bd27c0a66497",
     "original_checksum": "74ac66c0b34b029b990e4cb5e9edf300c790bf7e36a1db851ad5bd27c0a66497"
+=======
+    "current_checksum": "844d98e9c0193a90fa935e4cde14c4af7b5201679c5c52ffc474721acdb854ea",
+    "original_checksum": "844d98e9c0193a90fa935e4cde14c4af7b5201679c5c52ffc474721acdb854ea"
+>>>>>>> Stashed changes
   }
 }

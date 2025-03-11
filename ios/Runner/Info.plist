@@ -5,7 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
+<<<<<<< Updated upstream
 	<string>SriPedia</string>
+=======
+	<string>SriPediaFront</string>
+>>>>>>> Stashed changes
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,6 +17,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
+<<<<<<< Updated upstream
 	<string>SriPedia</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
@@ -23,12 +28,18 @@
 		<string>de</string>
 		<string>ar</string>
 	</array>
+=======
+	<string>SriPediaFront</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+>>>>>>> Stashed changes
 
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
+<<<<<<< Updated upstream
 	<array>
         <dict>
             <key>CFBundleTypeRole</key>
@@ -48,6 +59,16 @@
         <key>CFBundleURLSchemes</key>
         <array>
         <string>sripedia</string>
+=======
+	<array>        <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLName</key>
+        <string>sripediafront.com</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+        <string>sripediafront</string>
+>>>>>>> Stashed changes
         </array>
         </dict>
     </array>
@@ -60,10 +81,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
+<<<<<<< Updated upstream
 	<key>NSCameraUsageDescription</key>
     <string>In order to take a picture or video, this app requires permission to access the camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>In order to upload data, this app requires permission to access the photo library.</string>
+=======
+
+>>>>>>> Stashed changes
 
 
 

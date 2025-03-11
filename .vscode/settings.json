@@ -8,6 +8,10 @@
     "pubspec.yaml": true,
     "lib/flutter_flow/function_changes.json": true,
     ".vscode/settings.json": true
+<<<<<<< Updated upstream
   },
   "dart.flutterSdkPath": "c:\\Users\\aloka\\Documents\\flutterflow\\ff_flutter_sdk\\flutter"
+=======
+  }
+>>>>>>> Stashed changes
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+<<<<<<< Updated upstream
 import 'package:firebase_core/firebase_core.dart';
 import 'auth/firebase_auth/firebase_user_provider.dart';
 import 'auth/firebase_auth/auth_util.dart';
@@ -14,6 +15,10 @@ import 'flutter_flow/internationalization.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+=======
+import '/flutter_flow/flutter_flow_theme.dart';
+import 'flutter_flow/flutter_flow_util.dart';
+>>>>>>> Stashed changes
 import 'flutter_flow/nav/nav.dart';
 import 'index.dart';
 
@@ -22,8 +27,11 @@ void main() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
+<<<<<<< Updated upstream
   await initFirebase();
 
+=======
+>>>>>>> Stashed changes
   await FlutterFlowTheme.initialize();
 
   runApp(MyApp());
@@ -39,8 +47,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+<<<<<<< Updated upstream
   Locale? _locale;
 
+=======
+>>>>>>> Stashed changes
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
 
   late AppStateNotifier _appStateNotifier;
@@ -59,16 +70,20 @@ class _MyAppState extends State<MyApp> {
           .map((e) => getRoute(e))
           .toList();
 
+<<<<<<< Updated upstream
   late Stream<BaseAuthUser> userStream;
 
   final authUserSub = authenticatedUserStream.listen((_) {});
 
+=======
+>>>>>>> Stashed changes
   @override
   void initState() {
     super.initState();
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
+<<<<<<< Updated upstream
     userStream = sriPediaFirebaseUserStream()
       ..listen((user) {
         _appStateNotifier.update(user);
@@ -89,6 +104,8 @@ class _MyAppState extends State<MyApp> {
 
   void setLocale(String language) {
     safeSetState(() => _locale = createLocale(language));
+=======
+>>>>>>> Stashed changes
   }
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
@@ -100,6 +117,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+<<<<<<< Updated upstream
       title: 'SriPedia',
       localizationsDelegates: [
         FFLocalizationsDelegate(),
@@ -116,6 +134,15 @@ class _MyAppState extends State<MyApp> {
         Locale('de'),
         Locale('ar'),
       ],
+=======
+      title: 'SriPediaFront',
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', '')],
+>>>>>>> Stashed changes
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: false,
@@ -129,6 +156,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+<<<<<<< Updated upstream
 
 class NavBarPage extends StatefulWidget {
   NavBarPage({Key? key, this.initialPage, this.page}) : super(key: key);
@@ -223,3 +251,5 @@ class _NavBarPageState extends State<NavBarPage> {
     );
   }
 }
+=======
+>>>>>>> Stashed changes
