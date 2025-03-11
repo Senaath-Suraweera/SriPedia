@@ -1,0 +1,374 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+{% load file_filters %}
+{% block title %}My Files - SriPedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .files-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .files-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .upload-new {
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .upload-new:hover {
+        background-color: #4338ca;
+    }
+    
+    .no-files {
+        background-color: white;
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .no-files-icon {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+    
+    .files-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .file-card {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .file-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-preview {
+        height: 160px;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .file-icon {
+        font-size: 3rem;
+        color: #4f46e5;
+    }
+    
+    .file-info {
+        padding: 1.25rem;
+    }
+    
+    .file-name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        /* Prevent long filenames from breaking layout */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .file-meta {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .file-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .file-action {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .view-file {
+        background-color: #e0e7ff;
+        color: #4f46e5;
+    }
+    
+    .view-file:hover {
+        background-color: #c7d2fe;
+    }
+    
+    .delete-file {
+        background-color: #fee2e2;
+        color: #ef4444;
+    }
+    
+    .delete-file:hover {
+        background-color: #fecaca;
+    }
+    
+    .file-type-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .pdf-badge {
+        color: #dc2626;
+    }
+    
+    .doc-badge {
+        color: #2563eb;
+    }
+    
+    .image-badge {
+        color: #059669;
+    }
+    
+    .file-size {
+        margin-right: 1rem;
+    }
+    
+    .error-message {
+        color: #ef4444;
+        background-color: #fee2e2;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .files-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="files-container">
+    <div class="files-header">
+        <h1>My Files</h1>
+        <a href="{% url 'generate_quiz' %}" class="upload-new">
+            <span>➕</span> Upload New File
+        </a>
+    </div>
+    
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if files %}
+    <div class="files-grid">
+        {% for file in files %}
+        <div class="file-card">
+            <div class="file-preview" style="position: relative;">
+                {% with file_name=file.name|lower %}
+                    {% if '.pdf' in file_name %}
+                    <div class="file-type-badge pdf-badge">PDF</div>
+                    <div class="file-icon">📄</div>
+                    {% elif '.doc' in file_name or '.docx' in file_name %}
+                    <div class="file-type-badge doc-badge">DOC</div>
+                    <div class="file-icon">📝</div>
+                    {% elif '.jpg' in file_name or '.png' in file_name or '.gif' in file_name or '.jpeg' in file_name %}
+                    <div class="file-type-badge image-badge">IMAGE</div>
+                    <div class="file-icon">🖼️</div>
+                    {% else %}
+                    <div class="file-icon">📁</div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="file-info">
+                <div class="file-name" title="{{ file.name }}">{{ file.name }}</div>
+                <div class="file-meta">
+                    {% if file.upload_date %}
+                    <span>Uploaded: {{ file.upload_date }}</span>
+                    {% endif %}
+                    {% if file.size %}
+                    <span>Size: {{ file.size }}</span>
+                    {% endif %}
+                </div>
+                <div class="file-actions">
+                    <a href="{{ file.url }}" target="_blank" class="file-action view-file">
+                        <span>👁️</span> View
+                    </a>
+                    <a href="#" class="file-action delete-file" 
+                       onclick="confirmDeleteFile('{{ file.name }}', '{{ file.storage_path }}'); return false;">
+                        <span>🗑️</span> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-files">
+        <div class="no-files-icon">📂</div>
+        <h2>No Files Yet</h2>
+        <p>You haven't uploaded any files yet. Upload a file to generate quizzes or save study materials.</p>
+        <a href="{% url 'generate_quiz' %}" class="upload-new" style="margin-top: 1rem;">
+            <span>➕</span> Upload Your First File
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to confirm and handle file deletion
+        window.confirmDeleteFile = function(fileName, storagePath) {
+            SriPediaModal.open({
+                title: 'Delete File',
+                content: `<p>Are you sure you want to delete "${fileName}"? This action cannot be undone.</p>`,
+                buttons: [
+                    {
+                        text: 'Cancel',
+                        class: 'modal-btn-secondary'
+                    },
+                    {
+                        text: 'Delete',
+                        class: 'modal-btn-danger',
+                        onClick: function() {
+                            deleteFile(storagePath);
+                        }
+                    }
+                ]
+            });
+        }
+        
+        // Function to actually delete the file
+        function deleteFile(storagePath) {
+            // Send delete request
+            fetch(`{% url 'delete_file' %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    storage_path: storagePath
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Find and remove the file card
+                    const fileCards = document.querySelectorAll('.file-card');
+                    for (let i = 0; i < fileCards.length; i++) {
+                        const deleteLink = fileCards[i].querySelector('.delete-file');
+                        const onclickAttr = deleteLink.getAttribute('onclick');
+                        if (onclickAttr && onclickAttr.includes(storagePath)) {
+                            const fileCard = fileCards[i];
+                            fileCard.style.opacity = '0';
+                            fileCard.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                fileCard.remove();
+                                
+                                // If no files left, show the no-files message
+                                const remainingFiles = document.querySelectorAll('.file-card');
+                                if (remainingFiles.length === 0) {
+                                    const filesGrid = document.querySelector('.files-grid');
+                                    const noFiles = document.createElement('div');
+                                    noFiles.className = 'no-files';
+                                    noFiles.innerHTML = `
+                                        <div class="no-files-icon">📂</div>
+                                        <h2>No Files Yet</h2>
+                                        <p>You haven't uploaded any files yet. Upload a file to generate quizzes or save study materials.</p>
+                                        <a href="{% url 'generate_quiz' %}" class="upload-new" style="margin-top: 1rem;">
+                                            <span>➕</span> Upload Your First File
+                                        </a>
+                                    `;
+                                    filesGrid.parentNode.replaceChild(noFiles, filesGrid);
+                                }
+                            }, 300);
+                            break;
+                        }
+                    }
+                    
+                    // Show success message
+                    SriPediaModal.open({
+                        title: 'Success',
+                        content: '<p>File deleted successfully.</p>',
+                        buttons: [
+                            {
+                                text: 'OK',
+                                class: 'modal-btn-primary'
+                            }
+                        ]
+                    });
+                } else {
+                    // Show error message
+                    SriPediaModal.open({
+                        title: 'Error',
+                        content: `<p>Failed to delete file: ${data.error || 'Unknown error'}</p>`,
+                        buttons: [
+                            {
+                                text: 'OK',
+                                class: 'modal-btn-primary'
+                            }
+                        ]
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message
+                SriPediaModal.open({
+                    title: 'Error',
+                    content: '<p>Network error occurred while trying to delete the file. Please try again.</p>',
+                    buttons: [
+                        {
+                            text: 'OK',
+                            class: 'modal-btn-primary'
+                        }
+                    ]
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
