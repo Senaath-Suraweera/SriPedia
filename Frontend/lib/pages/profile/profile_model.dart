@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:math';
 import 'dart:ui';
+import '/index.dart';
 import 'profile_widget.dart' show ProfileWidget;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';

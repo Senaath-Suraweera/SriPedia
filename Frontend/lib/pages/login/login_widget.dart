@@ -288,7 +288,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                           EdgeInsetsDirectional.fromSTEB(0.0, 30.0, 0.0, 0.0),
                       child: FFButtonWidget(
                         onPressed: () async {
-                          context.pushNamed(SignupWidget.routeName);
+                          context.pushNamed(QuizPageWidget.routeName);
                         },
                         text: 'Let\'s GO!',
                         options: FFButtonOptions(

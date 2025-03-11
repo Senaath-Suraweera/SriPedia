@@ -88,14 +88,7 @@ class _QuizPageWidgetState extends State<QuizPageWidget> {
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 1.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFF83C5BE),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          alignment: AlignmentDirectional(0.0, 0.0),
-                          image: Image.asset(
-                            'assets/images/edg-viego-art-lol-hd-wallpaper-uhdpaper.com-388@1@i.jpg',
-                          ).image,
-                        ),
+                        color: Color(0xFF181A20),
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
                           color: Color(0xFFF89300),
