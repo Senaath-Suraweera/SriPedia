@@ -137,5 +137,38 @@ def delete_collection(collection_name_to_delete):
 def home():
     return jsonify({"message": "Welcome to the Flask API!"})
 
+@app.route('/addDocuments', methods=['POST'])
+def add_documents():
+    """
+    Upload a PDF document
+    ---
+    parameters:
+      - name: pdf
+        in: formData
+        type: file
+        required: true
+        description: The PDF file to upload
+      - name: user_id
+        in: formData
+        type: string
+        required: true
+        description: The ID of the user uploading the document
+    responses:
+      200:
+        description: Success message
+    """
+    if 'pdf' not in request.files or 'user_id' not in request.form:
+        return jsonify({"error": "Missing PDF or user_id"}), 400
+    
+    try:
+        pdf = request.files['pdf']
+        user_id = request.form['user_id']
+        get_raw_text = read_data_from_pdf(pdf)
+        chunks=get_text_chunks(get_raw_text)
+        vectors=get_embedding(chunks, user_id)
+        insert_data(vectors)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
