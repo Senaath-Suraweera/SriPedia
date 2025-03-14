@@ -54,7 +54,7 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
         key: scaffoldKey,
         backgroundColor: Color(0xFFF1F4F8),
         appBar: AppBar(
-          backgroundColor: Color(0xFF6F61EF),
+          backgroundColor: Color(0xFFF1F4F8),
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderRadius: 8,
@@ -68,21 +68,34 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
               print('IconButton pressed ...');
             },
           ),
-          title: Align(
-            alignment: AlignmentDirectional(-1, 0),
-            child: Text(
-              'Your History Timeline',
-              textAlign: TextAlign.start,
-              style: FlutterFlowTheme.of(context).headlineMedium.override(
-                    fontFamily: 'Outfit',
-                    color: Colors.white,
-                    fontSize: 24,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+          title: Text(
+            'Your History Timeline',
+            style: FlutterFlowTheme.of(context).headlineMedium.override(
+                  fontFamily: 'Outfit',
+                  color: Color(0xFF15161E),
+                  fontSize: 24,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
-          actions: [],
+          actions: [
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+              child: FlutterFlowIconButton(
+                borderRadius: 8,
+                buttonSize: 40,
+                fillColor: Color(0xFF6F61EF),
+                icon: Icon(
+                  Icons.upload_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                onPressed: () {
+                  print('IconButton pressed ...');
+                },
+              ),
+            ),
+          ],
           centerTitle: true,
           elevation: 0,
         ),
@@ -94,196 +107,157 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                 padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
                 child: Container(
                   width: double.infinity,
-                  height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(0),
                   ),
                   child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                    child: Container(
-                      width: 500,
-                      height: 100,
-                      child: Stack(
-                        alignment: AlignmentDirectional(0, 0),
-                        children: [
-                          Align(
-                            alignment: AlignmentDirectional(0, 0),
-                            child: Padding(
-                              padding:
-                                  EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                              child: Container(
-                                width: 500,
-                                height: 300,
-                                child: Stack(
-                                  alignment: AlignmentDirectional(0, 1),
-                                  children: [
-                                    Align(
-                                      alignment:
-                                          AlignmentDirectional(-0.85, 0.78),
-                                      child: FlutterFlowDropDown<String>(
-                                        controller: _model
-                                                .dropDownValueController1 ??=
-                                            FormFieldController<String>(null),
-                                        options: [
-                                          'All Periods',
-                                          'Ancient',
-                                          'Medieval',
-                                          'Colonial',
-                                          'Modern'
-                                        ],
-                                        onChanged: (val) => safeSetState(
-                                            () => _model.dropDownValue1 = val),
-                                        width: 120,
-                                        height: 40,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Plus Jakarta Sans',
-                                              color: Color(0xFF15161E),
-                                              fontSize: 14,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                        hintText: 'Time Period',
-                                        icon: Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Color(0xFF606A85),
-                                          size: 20,
-                                        ),
-                                        fillColor: Color(0xFFF1F4F8),
-                                        elevation: 0,
-                                        borderColor: Color(0x00000000),
-                                        borderWidth: 1,
-                                        borderRadius: 30,
-                                        margin: EdgeInsetsDirectional.fromSTEB(
-                                            0, 0, 0, 0),
-                                        hidesUnderline: true,
-                                        isSearchable: false,
-                                        isMultiSelect: false,
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment:
-                                          AlignmentDirectional(0.82, 0.82),
-                                      child: FlutterFlowDropDown<String>(
-                                        controller: _model
-                                                .dropDownValueController2 ??=
-                                            FormFieldController<String>(null),
-                                        options: [
-                                          'All Sources',
-                                          'Grade 10 History',
-                                          'World War II',
-                                          'Ancient Civilizations'
-                                        ],
-                                        onChanged: (val) => safeSetState(
-                                            () => _model.dropDownValue2 = val),
-                                        width: 120,
-                                        height: 40,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Plus Jakarta Sans',
-                                              color: Color(0xFF15161E),
-                                              fontSize: 14,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                        hintText: 'Source',
-                                        icon: Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Color(0xFF606A85),
-                                          size: 20,
-                                        ),
-                                        fillColor: Color(0xFFF1F4F8),
-                                        elevation: 0,
-                                        borderColor: Color(0x00000000),
-                                        borderWidth: 1,
-                                        borderRadius: 30,
-                                        margin: EdgeInsetsDirectional.fromSTEB(
-                                            0, 0, 0, 0),
-                                        hidesUnderline: true,
-                                        isSearchable: false,
-                                        isMultiSelect: false,
-                                      ),
-                                    ),
-                                  ],
+                    padding: EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _model.textController,
+                            focusNode: _model.textFieldFocusNode,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              hintText: 'Search events or dates...',
+                              hintStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    color: Color(0xFF15161E),
+                                    fontSize: 14,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 1,
                                 ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0xFFFF5963),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0xFFFF5963),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFFF1F4F8),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Color(0xFF606A85),
+                                size: 20,
                               ),
                             ),
-                          ),
-                          Align(
-                            alignment: AlignmentDirectional(-1, -1),
-                            child: Padding(
-                              padding: EdgeInsets.all(10),
-                              child: TextFormField(
-                                controller: _model.textController,
-                                focusNode: _model.textFieldFocusNode,
-                                obscureText: false,
-                                decoration: InputDecoration(
-                                  hintText: 'Search events or dates...',
-                                  hintStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        color: Color(0xFF15161E),
-                                        fontSize: 14,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0xFFFF5963),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0xFFFF5963),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  filled: true,
-                                  fillColor: Color(0xFFF1F4F8),
-                                  prefixIcon: Icon(
-                                    Icons.search,
-                                    color: Color(0xFF606A85),
-                                    size: 20,
-                                  ),
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  color: Color(0xFF15161E),
+                                  fontSize: 14,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.normal,
                                 ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: Color(0xFF15161E),
-                                      fontSize: 14,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                maxLines: null,
-                                validator: _model.textControllerValidator
-                                    .asValidator(context),
-                              ),
-                            ),
+                            maxLines: null,
+                            validator: _model.textControllerValidator
+                                .asValidator(context),
                           ),
-                        ],
-                      ),
+                        ),
+                        FlutterFlowDropDown<String>(
+                          controller: _model.dropDownValueController1 ??=
+                              FormFieldController<String>(null),
+                          options: [
+                            'All Periods',
+                            'Ancient',
+                            'Medieval',
+                            'Colonial',
+                            'Modern'
+                          ],
+                          onChanged: (val) =>
+                              safeSetState(() => _model.dropDownValue1 = val),
+                          width: 120,
+                          height: 40,
+                          textStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    color: Color(0xFF15161E),
+                                    fontSize: 14,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                          hintText: 'Time Period',
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF606A85),
+                            size: 20,
+                          ),
+                          fillColor: Color(0xFFF1F4F8),
+                          elevation: 0,
+                          borderColor: Color(0x00000000),
+                          borderWidth: 1,
+                          borderRadius: 30,
+                          margin: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          hidesUnderline: true,
+                          isSearchable: false,
+                          isMultiSelect: false,
+                        ),
+                        FlutterFlowDropDown<String>(
+                          controller: _model.dropDownValueController2 ??=
+                              FormFieldController<String>(null),
+                          options: [
+                            'All Sources',
+                            'Grade 10 History',
+                            'World War II',
+                            'Ancient Civilizations'
+                          ],
+                          onChanged: (val) =>
+                              safeSetState(() => _model.dropDownValue2 = val),
+                          width: 120,
+                          height: 40,
+                          textStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    color: Color(0xFF15161E),
+                                    fontSize: 14,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                          hintText: 'Source',
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF606A85),
+                            size: 20,
+                          ),
+                          fillColor: Color(0xFFF1F4F8),
+                          elevation: 0,
+                          borderColor: Color(0x00000000),
+                          borderWidth: 1,
+                          borderRadius: 30,
+                          margin: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          hidesUnderline: true,
+                          isSearchable: false,
+                          isMultiSelect: false,
+                        ),
+                      ].divide(SizedBox(width: 12)),
                     ),
                   ),
                 ),
@@ -296,7 +270,6 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
                         child: Container(
-                          decoration: BoxDecoration(),
                           child: Padding(
                             padding: EdgeInsets.all(16),
                             child: Container(
@@ -1286,88 +1259,78 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(),
-                      ),
                     ],
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                child: Container(
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Color(0xFFE5E7EB),
-                      width: 1,
-                    ),
+              Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                    color: Color(0xFFE5E7EB),
+                    width: 1,
                   ),
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
-                          },
-                          text: 'Refresh Timeline',
-                          icon: Icon(
-                            Icons.refresh,
-                            color: Color(0xFF6F61EF),
-                            size: 20,
-                          ),
-                          options: FFButtonOptions(
-                            height: 40,
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                            iconPadding:
-                                EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            color: Color(0x4D9489F5),
-                            textStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  color: Color(0xFF6F61EF),
-                                  fontSize: 14,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                            elevation: 0,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                ),
+                child: Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      FFButtonWidget(
+                        onPressed: () {
+                          print('Button pressed ...');
+                        },
+                        text: 'Refresh Timeline',
+                        icon: Icon(
+                          Icons.refresh,
+                          color: Color(0xFF6F61EF),
+                          size: 20,
                         ),
-                        FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
-                          },
-                          text: 'Narrate Timeline',
-                          options: FFButtonOptions(
-                            height: 40,
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                            iconPadding:
-                                EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            color: Color(0xFFEE8B60),
-                            textStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                            elevation: 0,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                        options: FFButtonOptions(
+                          height: 40,
+                          padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                          iconPadding:
+                              EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          color: Color(0x4D9489F5),
+                          textStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    color: Color(0xFF6F61EF),
+                                    fontSize: 14,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                          elevation: 0,
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                      ],
-                    ),
+                      ),
+                      FFButtonWidget(
+                        onPressed: () {
+                          print('Button pressed ...');
+                        },
+                        text: 'Narrate Timeline',
+                        options: FFButtonOptions(
+                          height: 40,
+                          padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                          iconPadding:
+                              EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                          color: Color(0xFFEE8B60),
+                          textStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                          elevation: 0,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
