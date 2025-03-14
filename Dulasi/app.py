@@ -54,3 +54,13 @@ def read_data_from_pdf(pdf_file):
         text += page.extract_text()
     return text
 
+def get_text_chunks(text):
+    text_splitter = CharacterTextSplitter(
+        separator="\n",
+        chunk_size=1000,
+        chunk_overlap=200,
+        length_function=len
+    )
+    chunks = text_splitter.split_text(text)
+    return chunks
+
