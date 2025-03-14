@@ -78,3 +78,12 @@ def get_embedding(text_chunks, user_id,  model_id="text-embedding-ada-002"):
 
     return points
 
+def insert_data(get_points):
+    connection = create_cluster_in_qdrant()
+    operation_info = connection.upsert(
+    collection_name="SriPedia",
+    wait=True,
+    points=get_points
+)
+
+
