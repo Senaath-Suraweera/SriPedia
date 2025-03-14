@@ -129,4 +129,9 @@ def create_answer_with_context(query, user_id):  # Add user_id parameter
 
     return completion.choices[0].message.content
 
+def delete_collection(collection_name_to_delete):
+    connection = create_cluster_in_qdrant()
+    connection.delete_collection(collection_name=collection_name_to_delete)
+
+
 
