@@ -133,5 +133,9 @@ def delete_collection(collection_name_to_delete):
     connection = create_cluster_in_qdrant()
     connection.delete_collection(collection_name=collection_name_to_delete)
 
+@app.route('/')
+def home():
+    return jsonify({"message": "Welcome to the Flask API!"})
+
 
 
