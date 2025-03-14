@@ -64,3 +64,17 @@ def get_text_chunks(text):
     chunks = text_splitter.split_text(text)
     return chunks
 
+def get_embedding(text_chunks, user_id,  model_id="text-embedding-ada-002"):
+    points = []
+    for idx, chunk in enumerate(text_chunks):
+        response = client.embeddings.create(
+            input=chunk,
+            model=model_id
+        )
+        embeddings = response.data[0].embedding
+        point_id = str(uuid.uuid4())  # Generate a unique ID for the point
+
+        points.append(PointStruct(id=point_id, vector=embeddings, payload={"text": chunk, "user_id": user_id}))
+
+    return points
+
