@@ -15,3 +15,10 @@ from openai import OpenAI
 import uuid
 from qdrant_client.http.exceptions import UnexpectedResponse
 from flasgger import Swagger
+
+# Setting things up for llm
+app = Flask(__name__)
+swagger = Swagger(app)
+
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
