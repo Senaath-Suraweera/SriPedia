@@ -44,3 +44,13 @@ def create_cluster_in_qdrant():
     info = connection.get_collection(collection_name="SriPedia")
 
     return connection
+
+def read_data_from_pdf(pdf_file):
+    text = ""  # for storing the extracted text
+
+    text = ""
+    pdf_reader = PdfReader(pdf_file.stream)  # Read from file stream
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
