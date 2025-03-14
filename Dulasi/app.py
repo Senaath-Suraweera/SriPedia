@@ -44,7 +44,7 @@ def create_cluster_in_qdrant():
     info = connection.get_collection(collection_name="SriPedia")
 
     return connection
-
+  
 def read_data_from_pdf(pdf_file):
     text = ""  # for storing the extracted text
 
@@ -85,7 +85,7 @@ def insert_data(get_points):
     wait=True,
     points=get_points
 )
-
+    
 def create_answer_with_context(query, user_id):  # Add user_id parameter
     # Generate query embedding
     response = client.embeddings.create(
@@ -133,6 +133,9 @@ def delete_collection(collection_name_to_delete):
     connection = create_cluster_in_qdrant()
     connection.delete_collection(collection_name=collection_name_to_delete)
 
+
+
+
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to the Flask API!"})
@@ -171,4 +174,65 @@ def add_documents():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/askQuestion', methods=['GET'])
+def ask_question():
+    """
+    Ask a question based on uploaded documents
+    ---
+    parameters:
+      - name: question
+        in: query
+        type: string
+        required: true
+        description: The question to ask
+      - name: user_id
+        in: query
+        type: string
+        required: true
+        description: The ID of the user asking the question
+    responses:
+      200:
+        description: The answer to the question
+    """
+    question = request.args.get("question")
+    user_id = request.args.get("user_id")
+    if not question or not user_id:
+        return jsonify({"error": "Missing question or user_id"}), 400
+    answer=create_answer_with_context(question, user_id)
+    return jsonify({"answer": answer})
 
+@app.route('/deleteCollection', methods=['DELETE'])
+def delete_collection_route():
+    """
+    Delete a Qdrant collection
+    ---
+    parameters:
+      - name: collection_name
+        in: query
+        type: string
+        required: true
+        description: The name of the collection to delete
+    responses:
+      200:
+        description: Collection deleted successfully
+      400:
+        description: Missing or invalid collection name
+      500:
+        description: Internal server error
+    """
+    collection_name = request.args.get('collection_name')
+    if not collection_name:
+        return jsonify({"error": "Missing collection_name"}), 400
+
+    try:
+        delete_collection(collection_name)
+        return jsonify({"message": f"Collection '{collection_name}' deleted successfully."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
