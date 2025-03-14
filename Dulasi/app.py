@@ -86,4 +86,47 @@ def insert_data(get_points):
     points=get_points
 )
 
+def create_answer_with_context(query, user_id):  # Add user_id parameter
+    # Generate query embedding
+    response = client.embeddings.create(
+        input=query,
+        model="text-embedding-ada-002"
+    )
+    embeddings = response.data[0].embedding
+    
+    # Create user-specific filter
+    user_filter = models.Filter(
+        must=[models.FieldCondition(
+            key="user_id",  # Metadata field storing user IDs
+            match=models.MatchValue(value=user_id)
+        )]
+    )
+    
+    # Search with filter
+    connection = create_cluster_in_qdrant()
+    search_result = connection.search(
+        collection_name="SriPedia",
+        query_vector=embeddings,
+        query_filter=user_filter,  # Apply metadata filter
+        limit=3  # Increase for better recall
+    )
+
+    prompt = "Context:\n"
+    for result in search_result:
+        prompt += result.payload['text'] + "\n---\n"
+    prompt += "Question:" + query + "\n---\n" + "Answer:"
+
+    print("----PROMPT START----")
+    print(":", prompt)
+    print("----PROMPT END----")
+
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+        )
+
+    return completion.choices[0].message.content
+
 
