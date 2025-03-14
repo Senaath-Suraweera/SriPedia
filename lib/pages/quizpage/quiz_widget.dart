@@ -1,3 +1,4 @@
+import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_timer.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -51,6 +52,39 @@ class _QuizpageWidgetState extends State<QuizpageWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        appBar: AppBar(
+          backgroundColor: Color(0xFF6F61EF),
+          automaticallyImplyLeading: false,
+          leading: FlutterFlowIconButton(
+            borderRadius: 8,
+            buttonSize: 40,
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: Color(0xFF15161E),
+              size: 24,
+            ),
+            onPressed: () {
+              print('IconButton pressed ...');
+            },
+          ),
+          title: Align(
+            alignment: AlignmentDirectional(-1, 0),
+            child: Text(
+              'Daily History Quiz',
+              textAlign: TextAlign.start,
+              style: FlutterFlowTheme.of(context).headlineMedium.override(
+                    fontFamily: 'Outfit',
+                    color: Colors.white,
+                    fontSize: 24,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          actions: [],
+          centerTitle: true,
+          elevation: 0,
+        ),
         body: SafeArea(
           top: true,
           child: SingleChildScrollView(
@@ -61,115 +95,53 @@ class _QuizpageWidgetState extends State<QuizpageWidget> {
                   padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
                   child: Container(
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          FlutterFlowTheme.of(context).primary,
-                          Colors.transparent
-                        ],
-                        stops: [0.1, 1],
-                        begin: AlignmentDirectional(0, 1),
-                        end: AlignmentDirectional(0, -1),
+                    decoration: BoxDecoration(),
+                    child: Container(
+                      width: 80,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).secondaryBackground,
+                        borderRadius: BorderRadius.circular(18),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Daily History Quiz',
-                              style: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .override(
-                                    fontFamily: 'Inter Tight',
-                                    fontSize: 20,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            Text(
-                              'Grade 10 - World War II',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Inter',
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                    letterSpacing: 0.0,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: 80,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 4,
-                                color: Color(0x19000000),
-                                offset: Offset(
-                                  0,
-                                  2,
-                                ),
-                              )
-                            ],
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      4, 0, 4, 0),
-                                  child: Icon(
-                                    Icons.timer,
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    size: 16,
-                                  ),
-                                ),
-                                FlutterFlowTimer(
-                                  initialTime: _model.timerInitialTimeMs,
-                                  getDisplayTime: (value) =>
-                                      StopWatchTimer.getDisplayTime(
-                                    value,
-                                    hours: false,
-                                    milliSecond: false,
-                                  ),
-                                  controller: _model.timerController,
-                                  onChanged:
-                                      (value, displayTime, shouldUpdate) {
-                                    _model.timerMilliseconds = value;
-                                    _model.timerValue = displayTime;
-                                    if (shouldUpdate) safeSetState(() {});
-                                  },
-                                  textAlign: TextAlign.start,
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Inter',
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        fontSize: 14,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                              ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(4, 0, 4, 0),
+                            child: Icon(
+                              Icons.timer,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 16,
                             ),
                           ),
-                        ),
-                      ],
+                          FlutterFlowTimer(
+                            initialTime: _model.timerInitialTimeMs,
+                            getDisplayTime: (value) =>
+                                StopWatchTimer.getDisplayTime(
+                              value,
+                              hours: false,
+                              milliSecond: false,
+                            ),
+                            controller: _model.timerController,
+                            onChanged: (value, displayTime, shouldUpdate) {
+                              _model.timerMilliseconds = value;
+                              _model.timerValue = displayTime;
+                              if (shouldUpdate) safeSetState(() {});
+                            },
+                            textAlign: TextAlign.start,
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: 'Inter',
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  fontSize: 14,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -778,15 +750,6 @@ class _QuizpageWidgetState extends State<QuizpageWidget> {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          FlutterFlowTheme.of(context).primary
-                        ],
-                        stops: [0, 0.1],
-                        begin: AlignmentDirectional(0, -1),
-                        end: AlignmentDirectional(0, 1),
-                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -846,29 +809,32 @@ class _QuizpageWidgetState extends State<QuizpageWidget> {
                             ),
                           ],
                         ),
-                        FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
-                          },
-                          text: 'Submit Answer',
-                          options: FFButtonOptions(
-                            width: double.infinity,
-                            height: 50,
-                            padding: EdgeInsets.all(8),
-                            iconPadding:
-                                EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                            color: FlutterFlowTheme.of(context).primary,
-                            textStyle: FlutterFlowTheme.of(context)
-                                .titleSmall
-                                .override(
-                                  fontFamily: 'Inter Tight',
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                            elevation: 2,
-                            borderRadius: BorderRadius.circular(8),
+                        Padding(
+                          padding: EdgeInsets.all(6),
+                          child: FFButtonWidget(
+                            onPressed: () {
+                              print('Button pressed ...');
+                            },
+                            text: 'Submit Answer',
+                            options: FFButtonOptions(
+                              width: double.infinity,
+                              height: 50,
+                              padding: EdgeInsets.all(8),
+                              iconPadding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                              color: FlutterFlowTheme.of(context).primary,
+                              textStyle: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .override(
+                                    fontFamily: 'Inter Tight',
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryBackground,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              elevation: 2,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                         Row(
