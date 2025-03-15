@@ -296,7 +296,9 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
                         child: Container(
-                          decoration: BoxDecoration(),
+                          decoration: BoxDecoration(
+                            color: FlutterFlowTheme.of(context).alternate,
+                          ),
                           child: Padding(
                             padding: EdgeInsets.all(16),
                             child: Container(
@@ -545,6 +547,10 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
                         child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                          ),
                           child: Padding(
                             padding: EdgeInsets.all(16),
                             child: Container(
@@ -793,6 +799,10 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
                         child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                          ),
                           child: Padding(
                             padding: EdgeInsets.all(16),
                             child: Container(
@@ -1039,8 +1049,12 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                        padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 8),
                         child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                          ),
                           child: Padding(
                             padding: EdgeInsets.all(16),
                             child: Container(
@@ -1294,12 +1308,12 @@ class _TimelinepageWidgetState extends State<TimelinepageWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 10),
                 child: Container(
                   width: double.infinity,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: FlutterFlowTheme.of(context).primaryBackground,
                     border: Border.all(
                       color: Color(0xFFE5E7EB),
                       width: 1,
