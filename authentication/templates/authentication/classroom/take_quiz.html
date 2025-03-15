@@ -1,0 +1,547 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load custom_filters %}
+{% block title %}Taking Quiz: {{ quiz.title }} | SriPedia{% endblock %}
+
+{% block extra_head %}
+<style>
+    .question-card {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+    
+    .question-card.active {
+        border-color: #4e73df;
+        box-shadow: 0 0 10px rgba(78, 115, 223, 0.25);
+    }
+    
+    .question-number {
+        display: inline-block;
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: #4e73df;
+        color: white;
+        margin-right: 10px;
+    }
+    
+    .option-row {
+        display: block;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .option-row:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .option-row.selected {
+        background-color: #cce5ff;
+        border-color: #b8daff;
+    }
+    
+    .quiz-navigation {
+        display: flex;
+        justify-content: space-between;
+        position: sticky;
+        bottom: 20px;
+        padding: 15px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .question-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 20px 0;
+    }
+    
+    .question-nav-button {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: white;
+        cursor: pointer;
+    }
+    
+    .question-nav-button.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    
+    .question-nav-button.answered {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    
+    .timer {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .clock-icon {
+        font-size: 20px;
+        margin-right: 8px;
+        color: #4e73df;
+    }
+    
+    .quiz-complete {
+        display: none;
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .quiz-score {
+        font-size: 64px;
+        font-weight: bold;
+        color: #4e73df;
+    }
+    
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #f0f;
+        opacity: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'classroom_list' %}">Classrooms</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'classroom_detail' classroom.id %}">{{ classroom.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'classroom_quizzes' classroom.id %}">Quizzes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Taking {{ quiz.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-9">
+            <!-- Quiz Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ quiz.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="mb-0">{{ questions|length }} questions</p>
+                        <div class="timer">
+                            <i class="bi bi-clock-fill clock-icon"></i>
+                            <span id="timer-display">00:00</span>
+                        </div>
+                    </div>
+                    
+                    {% if quiz.description %}
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        {{ quiz.description }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Question Navigation -->
+            <div class="question-nav" id="question-nav">
+                {% for question in questions %}
+                    <div class="question-nav-button {% if forloop.first %}active{% endif %}"
+                         data-question-index="{{ forloop.counter0 }}">
+                        {{ forloop.counter }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Questions -->
+            <div id="questions-container">
+                {% for question in questions %}
+                <div class="question-card {% if forloop.first %}active{% endif %}" data-question-index="{{ forloop.counter0 }}" id="question-{{ forloop.counter0 }}">
+                    <h4>
+                        <span class="question-number">{{ forloop.counter }}</span>
+                        {{ question.question_text }}
+                    </h4>
+                    
+                    <div class="options-container mt-4">
+                        {% for option in question.options.all|dictsort:"order" %}
+                        <label class="option-row" data-option-index="{{ forloop.counter0 }}">
+                            <input type="radio" name="question-{{ question.id }}" value="{{ forloop.counter0 }}" class="d-none option-radio">
+                            <span class="option-text">{{ option.option_text }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quiz Navigation Controls -->
+            <div class="quiz-navigation">
+                <button id="prev-btn" class="btn btn-outline-primary" disabled>
+                    <i class="bi bi-arrow-left me-1"></i> Previous
+                </button>
+                
+                <div>
+                    <span id="current-question">1</span>/<span id="total-questions">{{ questions|length }}</span>
+                </div>
+                
+                <button id="next-btn" class="btn btn-primary">
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+
+            <!-- Quiz Complete Screen (initially hidden) -->
+            <div class="quiz-complete" id="quiz-complete">
+                <i class="bi bi-check-circle-fill text-success mb-3" style="font-size: 64px;"></i>
+                <h2 class="mb-4">Quiz Complete!</h2>
+                <p class="lead">Your score:</p>
+                <div class="quiz-score mb-3" id="final-score">0%</div>
+                <p id="score-details">0 correct out of 0 questions</p>
+                <button id="submit-quiz-btn" class="btn btn-primary btn-lg mt-3">
+                    Submit and View Results
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quiz Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p class="mb-0">
+                        <span id="answered-count">0</span> of {{ questions|length }} questions answered
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Read each question carefully</li>
+                        <li>You can navigate between questions</li>
+                        <li>Make sure to answer all questions</li>
+                        <li>You'll see your results immediately after submission</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 mt-3">
+                <button id="finish-quiz-btn" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-lg me-1"></i> Finish Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quiz state
+    const quizState = {
+        currentQuestion: 0,
+        totalQuestions: {{ questions|length }},
+        answers: {},
+        startTime: new Date(),
+        elapsedSeconds: 0,
+        timerInterval: null
+    };
+
+    // DOM elements
+    const questionCards = document.querySelectorAll('.question-card');
+    const questionNavButtons = document.querySelectorAll('.question-nav-button');
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+    const currentQuestionEl = document.getElementById('current-question');
+    const progressBar = document.getElementById('progress-bar');
+    const answeredCount = document.getElementById('answered-count');
+    const timerDisplay = document.getElementById('timer-display');
+    const finishQuizBtn = document.getElementById('finish-quiz-btn');
+    const quizComplete = document.getElementById('quiz-complete');
+    const finalScore = document.getElementById('final-score');
+    const scoreDetails = document.getElementById('score-details');
+    const submitQuizBtn = document.getElementById('submit-quiz-btn');
+    const questionsContainer = document.getElementById('questions-container');
+
+    // Start the timer
+    startTimer();
+
+    // Setup event listeners
+    setupEventListeners();
+
+    // Initialize quiz state
+    updateNavigation();
+    updateProgress();
+
+    // Functions
+    function setupEventListeners() {
+        // Option selection
+        document.querySelectorAll('.option-row').forEach(optionRow => {
+            optionRow.addEventListener('click', function() {
+                const questionCard = this.closest('.question-card');
+                const questionIndex = questionCard.dataset.questionIndex;
+                const questionId = questionCard.id.split('-')[1];
+                const optionIndex = this.dataset.optionIndex;
+                const radioInput = this.querySelector('.option-radio');
+                
+                // Update UI
+                questionCard.querySelectorAll('.option-row').forEach(row => {
+                    row.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                radioInput.checked = true;
+                
+                // Update question navigation
+                questionNavButtons[questionIndex].classList.add('answered');
+                
+                // Store the answer
+                storeAnswer(questionCard.querySelector('input[type="radio"]:checked').name.split('-')[1], optionIndex);
+                
+                // Update progress
+                updateProgress();
+                
+                // If it's the last question, show finish button
+                if (parseInt(questionIndex) === quizState.totalQuestions - 1) {
+                    nextButton.innerHTML = 'Finish <i class="bi bi-check-lg ms-1"></i>';
+                    nextButton.classList.replace('btn-primary', 'btn-success');
+                }
+            });
+        });
+
+        // Question navigation buttons
+        questionNavButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const questionIndex = parseInt(this.dataset.questionIndex);
+                showQuestion(questionIndex);
+            });
+        });
+
+        // Prev and Next buttons
+        prevButton.addEventListener('click', showPreviousQuestion);
+        nextButton.addEventListener('click', showNextQuestion);
+
+        // Finish quiz button
+        finishQuizBtn.addEventListener('click', finishQuiz);
+        
+        // Submit quiz button
+        submitQuizBtn.addEventListener('click', submitQuiz);
+    }
+
+    function showQuestion(index) {
+        // Hide all questions and deactivate nav buttons
+        questionCards.forEach(card => card.classList.remove('active'));
+        questionNavButtons.forEach(button => button.classList.remove('active'));
+        
+        // Show selected question and activate nav button
+        questionCards[index].classList.add('active');
+        questionNavButtons[index].classList.add('active');
+        
+        // Update current question index
+        quizState.currentQuestion = index;
+        
+        // Update UI elements
+        currentQuestionEl.textContent = index + 1;
+        updateNavigation();
+        
+        // Scroll to the question
+        questionCards[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showNextQuestion() {
+        if (quizState.currentQuestion < quizState.totalQuestions - 1) {
+            showQuestion(quizState.currentQuestion + 1);
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function showPreviousQuestion() {
+        if (quizState.currentQuestion > 0) {
+            showQuestion(quizState.currentQuestion - 1);
+        }
+    }
+
+    function updateNavigation() {
+        prevButton.disabled = quizState.currentQuestion === 0;
+        
+        if (quizState.currentQuestion === quizState.totalQuestions - 1) {
+            nextButton.innerHTML = 'Finish <i class="bi bi-check-lg ms-1"></i>';
+            nextButton.classList.replace('btn-primary', 'btn-success');
+        } else {
+            nextButton.innerHTML = 'Next <i class="bi bi-arrow-right ms-1"></i>';
+            nextButton.classList.replace('btn-success', 'btn-primary');
+        }
+    }
+
+    function updateProgress() {
+        const answeredQuestions = Object.keys(quizState.answers).length;
+        const percentage = (answeredQuestions / quizState.totalQuestions) * 100;
+        
+        progressBar.style.width = `${percentage}%`;
+        answeredCount.textContent = answeredQuestions;
+        
+        // Enable/disable finish button based on progress
+        finishQuizBtn.disabled = answeredQuestions < quizState.totalQuestions;
+    }
+
+    function storeAnswer(questionId, optionIndex) {
+        quizState.answers[questionId] = parseInt(optionIndex);
+    }
+
+    function finishQuiz() {
+        // Check if all questions are answered
+        const answeredQuestions = Object.keys(quizState.answers).length;
+        if (answeredQuestions < quizState.totalQuestions) {
+            const confirm = window.confirm(`You've only answered ${answeredQuestions} of ${quizState.totalQuestions} questions. Are you sure you want to finish?`);
+            if (!confirm) {
+                return;
+            }
+        }
+        
+        // Calculate score (for display purposes, the real scoring is done server-side)
+        let correctCount = 0;
+        
+        // Hide questions and show quiz complete
+        questionsContainer.style.display = 'none';
+        document.querySelector('.quiz-navigation').style.display = 'none';
+        document.getElementById('question-nav').style.display = 'none';
+        quizComplete.style.display = 'block';
+        
+        // Stop the timer
+        clearInterval(quizState.timerInterval);
+    }
+
+    function startTimer() {
+        quizState.timerInterval = setInterval(() => {
+            quizState.elapsedSeconds += 1;
+            const minutes = Math.floor(quizState.elapsedSeconds / 60);
+            const seconds = quizState.elapsedSeconds % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function submitQuiz() {
+        // Disable the button to prevent double submission
+        submitQuizBtn.disabled = true;
+        submitQuizBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+
+        // Prepare data to send
+        const data = {
+            answers: quizState.answers,
+            time_taken: quizState.elapsedSeconds
+        };
+
+        // Send AJAX request
+        fetch('{% url "submit_quiz_answer" quiz.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show score
+                finalScore.textContent = data.score.toFixed(1) + '%';
+                scoreDetails.textContent = `${data.correct_count} correct out of ${data.total_questions} questions`;
+                
+                // Create confetti effect for good scores
+                if (data.score > 70) {
+                    createConfetti();
+                }
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 3000);
+            } else {
+                alert('Error: ' + data.message);
+                submitQuizBtn.disabled = false;
+                submitQuizBtn.innerHTML = 'Submit and View Results';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting your quiz. Please try again.');
+            submitQuizBtn.disabled = false;
+            submitQuizBtn.innerHTML = 'Submit and View Results';
+        });
+    }
+
+    // Helper functions
+    function getCsrfToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        return cookieValue;
+    }
+    
+    function createConfetti() {
+        const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+        const confettiCount = 100;
+        const container = document.querySelector('body');
+        
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = -20 + 'px';
+            confetti.style.width = Math.random() * 10 + 5 + 'px';
+            confetti.style.height = Math.random() * 10 + 5 + 'px';
+            confetti.style.opacity = Math.random();
+            confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+            
+            container.appendChild(confetti);
+            
+            // Animate confetti
+            const animation = confetti.animate(
+                [
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ],
+                {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.37, 0, 0.63, 1)'
+                }
+            );
+            
+            animation.onfinish = () => {
+                confetti.remove();
+            };
+        }
+    }
+});
+</script>
+{% endblock %}

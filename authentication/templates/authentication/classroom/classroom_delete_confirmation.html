@@ -1,0 +1,26 @@
+{% extends 'authentication/classroom/classroom_base.html' %}
+
+{% block title %}Delete Classroom - SriPedia{% endblock %}
+
+{% block classroom_content %}
+<div class="card shadow border-danger">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Delete Classroom</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <h5><i class="bi bi-exclamation-triangle-fill me-2"></i> Warning</h5>
+            <p>You are about to delete the classroom "<strong>{{ classroom.name }}</strong>".</p>
+            <p class="mb-0">This action cannot be undone. All materials, quizzes, and student data for this classroom will be permanently deleted.</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'classroom_edit' classroom.id %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

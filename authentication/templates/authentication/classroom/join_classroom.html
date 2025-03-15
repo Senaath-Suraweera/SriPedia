@@ -1,0 +1,37 @@
+{% extends 'authentication/base_logged_in.html' %}
+
+{% block title %}Join Classroom - SriPedia{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Join a Classroom</h5>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="join_code" class="form-label">Classroom Join Code</label>
+                            <input type="text" class="form-control form-control-lg text-center" id="join_code" name="join_code" 
+                                   placeholder="Enter 8-digit code" maxlength="8" required>
+                            <div class="form-text">Enter the 8-character code provided by your teacher.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'classroom_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Join Classroom</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
