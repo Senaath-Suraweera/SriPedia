@@ -1,0 +1,134 @@
+{% extends 'authentication/base_logged_in.html' %}
+{% load static %}
+{% load timeline_extras %}  
+
+{% block title %}Historical Timeline{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-container {
+        margin: 30px 0;
+        position: relative;
+    }
+    
+    .timeline {
+        display: flex;
+        overflow-x: auto;
+        padding: 20px 0;
+        margin: 0 20px;
+    }
+    
+    .timeline-year {
+        flex: 0 0 80px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        padding-top: 30px;
+        margin: 0 5px;
+    }
+    
+    .timeline-year.active {
+        font-weight: bold;
+        color: #2563eb;
+    }
+    
+    /* Rest of your CSS styles... */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Sri Lanka Historical Timeline</h1>
+    
+    <div class="timeline-navigation d-flex justify-content-between mb-3">
+        <button id="prevYear" class="btn btn-outline-primary"><i class="fas fa-chevron-left"></i> Previous Year</button>
+        <h3 id="selectedYearHeader">{{ selected_year }}</h3>
+        <button id="nextYear" class="btn btn-outline-primary">Next Year <i class="fas fa-chevron-right"></i></button>
+    </div>
+    
+    <div class="timeline-container">
+        <div class="timeline">
+            {% for year, count in events_count.items %}
+                {% if count > 0 %}
+                <div class="timeline-year {% if year == selected_year %}active{% endif %}" data-year="{{ year }}">
+                    <div class="year-bar" style="height: {{ count|multiply:5|add:10 }}px;"></div>
+                    <div class="year-marker"></div>
+                    {{ year }}
+                    <span class="event-count">{{ count }} event{% if count > 1 %}s{% endif %}</span>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="events-container">
+        <h2>Events in {{ selected_year }}</h2>
+        
+        {% if selected_events %}
+            {% for event in selected_events %}
+                <div class="event-card">
+                    <div class="event-title">{{ event.event }}</div>
+                    <div class="event-importance">{{ event.importance }}</div>
+                    {% if event.source %}
+                        <div class="event-source">Source: {{ event.source }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No historical events found for this year.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Center the timeline on the selected year
+        const timelineContainer = document.querySelector('.timeline');
+        const activeYear = document.querySelector('.timeline-year.active');
+        
+        if (activeYear && timelineContainer) {
+            setTimeout(() => {
+                timelineContainer.scrollLeft = activeYear.offsetLeft - (timelineContainer.clientWidth / 2) + (activeYear.offsetWidth / 2);
+            }, 100);
+        }
+        
+        // Handle year selection
+        const yearElements = document.querySelectorAll('.timeline-year');
+        yearElements.forEach(year => {
+            year.addEventListener('click', function() {
+                const selectedYear = this.dataset.year;
+                window.location.href = `?year=${selectedYear}`;
+            });
+        });
+        
+        // Handle next/previous navigation
+        const selectedYear = "{{ selected_year }}";
+        const yearsList = [{% for year, count in events_count.items %}{% if count > 0 %}"{{ year }}",{% endif %}{% endfor %}];
+        const currentIndex = yearsList.indexOf(selectedYear);
+        
+        document.getElementById('prevYear').addEventListener('click', function() {
+            if (currentIndex > 0) {
+                const prevYear = yearsList[currentIndex - 1];
+                window.location.href = `?year=${prevYear}`;
+            }
+        });
+        
+        document.getElementById('nextYear').addEventListener('click', function() {
+            if (currentIndex < yearsList.length - 1) {
+                const nextYear = yearsList[currentIndex + 1];
+                window.location.href = `?year=${nextYear}`;
+            }
+        });
+        
+        // Disable buttons if at the beginning or end
+        if (currentIndex === 0) {
+            document.getElementById('prevYear').disabled = true;
+        }
+        if (currentIndex === yearsList.length - 1) {
+            document.getElementById('nextYear').disabled = true;
+        }
+    });
+</script>
+{% endblock %}
