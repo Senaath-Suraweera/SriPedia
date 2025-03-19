@@ -897,6 +897,7 @@ def signup(request):
     else:
         form = UserRegistrationForm()
     
+<<<<<<< Updated upstream
     return render(request, 'authentication/signup.html', {'form': form})
 
 from django.shortcuts import render, redirect
@@ -1015,3 +1016,107 @@ def firebase_logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('login')
+=======
+    # If not a POST request, show confirmation page or redirect back
+    return redirect('classroom_materials', classroom_id=classroom.id)
+
+import os
+import json
+import firebase_admin
+from firebase_admin import credentials, db
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from datetime import datetime
+
+def initialize_firebase_if_needed():
+    """Initialize Firebase if it's not already initialized"""
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        # Initialize Firebase using the serviceAccountKey.json file
+        cred_path = os.path.join('firebase_credentials', 'serviceAccountKey.json')
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://sripedia-2a129-default-rtdb.asia-southeast1.firebasedatabase.app'
+        })
+
+def get_historical_events():
+    """Fetch historical events from Firebase database"""
+    # Ensure Firebase is initialized
+    initialize_firebase_if_needed()
+    
+    # Get a reference to the database
+    events_ref = db.reference('sri_lanka_historical_events_by_year')
+    
+    # Fetch all events organized by year
+    events_by_year = events_ref.get()
+    
+    if not events_by_year:
+        return {}
+        
+    # Process events to be more usable for the calendar
+    organized_events = {}
+    
+    for year_key, events in events_by_year.items():
+        # Convert sanitized year back to standard format if needed
+        year = year_key.replace('_', '.')
+        
+        # Skip years that aren't numeric
+        if not year.isdigit():
+            continue
+            
+        # Add to organized events
+        organized_events[year] = sorted(events, key=lambda x: x.get('importance', ''))
+    
+    # Sort the years
+    return {year: organized_events[year] for year in sorted(organized_events.keys())}
+
+@login_required
+def historical_timeline(request):
+    """View to display historical timeline calendar"""
+    events_by_year = get_historical_events()
+    
+    # Get the range of years for the timeline
+    all_years = [int(year) for year in events_by_year.keys() if year.isdigit()]
+    
+    if all_years:
+        start_year = min(all_years)
+        end_year = max(all_years)
+        selected_year = request.GET.get('year', str(end_year))
+    else:
+        # Default if no events
+        start_year = 1900
+        end_year = datetime.now().year
+        selected_year = str(end_year)
+    
+    # Get events for the selected year
+    selected_events = events_by_year.get(selected_year, [])
+    
+    # Count events by year for the timeline visualization
+    events_count = {year: len(events) for year, events in events_by_year.items()}
+    
+    context = {
+        'events_by_year': events_by_year,
+        'selected_year': selected_year,
+        'selected_events': selected_events,
+        'start_year': start_year,
+        'end_year': end_year,
+        'events_count': events_count,
+        'timeline_years': range(start_year, end_year + 1),
+    }
+    
+    return render(request, 'authentication/historical_timeline.html', context)
+
+@login_required
+def get_events_for_year(request, year):
+    """API to get events for a specific year"""
+    events_by_year = get_historical_events()
+    year_events = events_by_year.get(str(year), [])
+    
+    return JsonResponse({
+        'year': year,
+        'events': year_events,
+        'count': len(year_events)
+    })
+>>>>>>> Stashed changes
