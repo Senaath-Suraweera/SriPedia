@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "26276679963",
+    "firebase_url": "https://sripedia-2a129-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "sripedia-2a129",
+    "storage_bucket": "sripedia-2a129.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26276679963:android:56dc73354217b55dfa83be",
+        "android_client_info": {
+          "package_name": "com.example.mainapptest1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZD2nqhoFUJl_NOaGGf1c8dZLyvMVTNbI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
