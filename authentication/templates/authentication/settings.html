@@ -1,0 +1,196 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/settings.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}Settings - SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Account Settings</h1>
+    
+    <div class="settings-container">
+        <div class="settings-sidebar">
+            <ul class="settings-nav">
+                <li><a href="#profile" class="active">Profile Settings</a></li>
+                <li><a href="#account">Account Security</a></li>
+                <li><a href="#notifications">Notifications</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="#data">Data Management</a></li>
+            </ul>
+        </div>
+        
+        <div class="settings-content">
+            <!-- Profile Settings -->
+            <section id="profile" class="settings-section">
+                <h2>Profile Settings</h2>
+                
+                <form method="post" action="{% url 'update_profile' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="display_name">Display Name</label>
+                        <input type="text" id="display_name" name="display_name" value="{{ user.username }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="3">{{ user_profile.bio }}</textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Account Security -->
+            <section id="account" class="settings-section">
+                <h2>Account Security</h2>
+                
+                <form method="post" action="{% url 'change_password' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" id="new_password" name="new_password" required>
+                        <div class="password-strength-meter">
+                            <div class="meter-bar"></div>
+                        </div>
+                        <small class="password-tips">Use at least 8 characters with a mix of letters, numbers, and symbols.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Privacy Settings -->
+            <section id="privacy" class="settings-section">
+                <h2>Privacy Settings</h2>
+                
+                <form method="post" action="{% url 'update_privacy' %}">
+                    {% csrf_token %}
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Profile Visibility</h3>
+                            <p>Control who can see your profile information and activities</p>
+                        </div>
+                        <div class="setting-control">
+                            <select name="profile_visibility">
+                                <option value="public" {% if privacy.profile_visibility == 'public' %}selected{% endif %}>Public</option>
+                                <option value="friends" {% if privacy.profile_visibility == 'friends' %}selected{% endif %}>Friends Only</option>
+                                <option value="private" {% if privacy.profile_visibility == 'private' %}selected{% endif %}>Private</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Show Learning Progress</h3>
+                            <p>Allow others to see your quiz scores and learning achievements</p>
+                        </div>
+                        <div class="setting-control">
+                            <label class="switch">
+                                <input type="checkbox" name="show_progress" {% if privacy.show_progress %}checked{% endif %}>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Privacy Settings</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab navigation
+        const navLinks = document.querySelectorAll('.settings-nav a');
+        const sections = document.querySelectorAll('.settings-section');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active tab
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show relevant section
+                const targetId = this.getAttribute('href');
+                sections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.querySelector(targetId).style.display = 'block';
+            });
+        });
+        
+        // Initialize - show first tab
+        sections.forEach((section, index) => {
+            section.style.display = index === 0 ? 'block' : 'none';
+        });
+        
+        // Password strength meter
+        const passwordInput = document.getElementById('new_password');
+        const meterBar = document.querySelector('.meter-bar');
+        
+        passwordInput.addEventListener('input', function() {
+            const strength = calculatePasswordStrength(this.value);
+            updatePasswordMeter(strength);
+        });
+        
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]/)) strength += 25;
+            if (password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[0-9]/)) strength += 25;
+            if (password.match(/[^a-zA-Z0-9]/)) strength += 25;
+            
+            return Math.min(100, strength);
+        }
+        
+        function updatePasswordMeter(strength) {
+            meterBar.style.width = strength + '%';
+            
+            if (strength < 25) {
+                meterBar.style.backgroundColor = '#ff4d4d';
+            } else if (strength < 50) {
+                meterBar.style.backgroundColor = '#ffa64d';
+            } else if (strength < 75) {
+                meterBar.style.backgroundColor = '#ffff4d';
+            } else {
+                meterBar.style.backgroundColor = '#4dff4d';
+            }
+        }
+    });
+</script>
+{% endblock %}
