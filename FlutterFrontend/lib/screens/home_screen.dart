@@ -504,12 +504,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const ListTile(
-              leading: Icon(Icons.person, color: Color(0xFF61DAFB)),
-              title: Text(
+            ListTile(
+              leading: const Icon(Icons.person, color: Color(0xFF61DAFB)),
+              title: const Text(
                 'View Profile',
                 style: TextStyle(color: Colors.white),
               ),
+              onTap: () {
+                Navigator.pop(context); // Close the bottom sheet
+                Navigator.pushNamed(
+                    context, '/profile'); // Navigate to profile screen
+              },
             ),
             const ListTile(
               leading: Icon(Icons.settings, color: Color(0xFF61DAFB)),

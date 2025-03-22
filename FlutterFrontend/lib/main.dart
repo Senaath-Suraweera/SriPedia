@@ -17,6 +17,7 @@ import 'pages/classroom_details_page.dart';
 import 'pages/my_classrooms_page.dart';
 import 'providers/user_provider.dart';
 import 'screens/timeline_screen.dart'; // Add this import
+import 'screens/profile_screen.dart'; // Add this import
 
 // Define app theme constants
 class AppTheme {
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
         '/timeline': (context) => const TimelineScreen(),
         '/chatbot': (context) => const PlaceholderScreen(title: 'AI Chatbot'),
         '/join_classroom': (context) => const ClassroomJoinPage(),
+        '/profile': (context) => const ProfileScreen(), // Add this route
         '/classroom_details': (context) => ClassroomDetailsPage(
               classroomId: ModalRoute.of(context)!.settings.arguments as String,
             ),
