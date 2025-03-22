@@ -15,12 +15,14 @@ class HistoricalEvent {
   final int? numericYear;
   final String event;
   final String importance;
+  final String? year;
 
   HistoricalEvent({
     required this.yearLabel,
     this.numericYear,
     required this.event,
     required this.importance,
+    this.year,
   });
 }
 
@@ -95,34 +97,51 @@ class _TimelineScreenState extends State<TimelineScreen> {
         List<HistoricalEvent> events = [];
 
         data.forEach((yearStr, yearData) {
+          // Skip entries that are not numeric years
+          if (!_isNumericYear(yearStr)) {
+            return; // Skip this iteration
+          }
+
           // Each year can have multiple events
           if (yearData is List) {
             for (var eventData in yearData) {
               if (eventData != null && eventData is Map) {
                 final eventMap = Map<String, dynamic>.from(eventData as Map);
-                events.add(HistoricalEvent(
-                  yearLabel: yearStr,
-                  numericYear: _parseYear(yearStr),
-                  event: eventMap['event'] ?? 'No event description',
-                  importance:
-                      eventMap['importance'] ?? 'No importance data available',
-                ));
+                final yearField = eventMap['year']?.toString();
+
+                // Only add events with numeric years
+                if (yearField == null || _isNumericYear(yearField)) {
+                  events.add(HistoricalEvent(
+                    yearLabel: yearStr,
+                    numericYear: _parseYear(yearField ?? yearStr),
+                    event: eventMap['event'] ?? 'No event description',
+                    importance: eventMap['importance'] ??
+                        'No importance data available',
+                    year: yearField,
+                  ));
+                }
               }
             }
           } else if (yearData is Map) {
             // Handle case where yearData is directly a map
             final eventMap = Map<String, dynamic>.from(yearData as Map);
-            events.add(HistoricalEvent(
-              yearLabel: yearStr,
-              numericYear: _parseYear(yearStr),
-              event: eventMap['event'] ?? 'No event description',
-              importance:
-                  eventMap['importance'] ?? 'No importance data available',
-            ));
+            final yearField = eventMap['year']?.toString();
+
+            // Only add events with numeric years
+            if (yearField == null || _isNumericYear(yearField)) {
+              events.add(HistoricalEvent(
+                yearLabel: yearStr,
+                numericYear: _parseYear(yearField ?? yearStr),
+                event: eventMap['event'] ?? 'No event description',
+                importance:
+                    eventMap['importance'] ?? 'No importance data available',
+                year: yearField,
+              ));
+            }
           }
         });
 
-        // Sort the events by year (numerically if possible, then alphabetically)
+        // Updated sorting logic to prioritize the "year" field
         events.sort((a, b) {
           if (a.numericYear != null && b.numericYear != null) {
             return a.numericYear!.compareTo(b.numericYear!);
@@ -131,7 +150,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
           } else if (b.numericYear != null) {
             return 1;
           }
-          return a.yearLabel.compareTo(b.yearLabel);
+          return 0; // This shouldn't happen anymore since we're filtering non-numeric years
         });
 
         setState(() {
@@ -150,6 +169,27 @@ class _TimelineScreenState extends State<TimelineScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  // Helper method to check if a year string represents a numeric year
+  bool _isNumericYear(String yearStr) {
+    // Check if the string is purely numeric
+    if (RegExp(r'^\d+$').hasMatch(yearStr)) {
+      return true;
+    }
+
+    // Check for negative years (BC/BCE)
+    if (RegExp(r'^-\d+$').hasMatch(yearStr)) {
+      return true;
+    }
+
+    // Special case for years with leading zeros like "0100"
+    if (RegExp(r'^0\d+$').hasMatch(yearStr)) {
+      return true;
+    }
+
+    // Avoid other strings like "10500_years_ago", "Unknown", etc.
+    return false;
   }
 
   @override
@@ -241,7 +281,9 @@ class _TimelineScreenState extends State<TimelineScreen> {
                               itemCount: _events.length,
                               itemBuilder: (context, index) {
                                 final event = _events[index];
-                                final year = _formatYearLabel(event.yearLabel);
+                                final displayYear = event.year != null
+                                    ? _formatYearLabel(event.year!)
+                                    : _formatYearLabel(event.yearLabel);
                                 final isSpecialYear =
                                     event.numericYear != null &&
                                         (event.numericYear! % 100 == 0 ||
@@ -249,8 +291,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
                                 final nextIndex = index + 1;
                                 final isFirstOfYear = index == 0 ||
                                     (nextIndex < _events.length &&
-                                        _events[nextIndex].yearLabel !=
-                                            event.yearLabel);
+                                        (event.year !=
+                                            _events[nextIndex].year));
 
                                 return Column(
                                   children: [
@@ -289,15 +331,20 @@ class _TimelineScreenState extends State<TimelineScreen> {
                                               size: isSpecialYear ? 22 : 18,
                                             ),
                                             const SizedBox(width: 12),
-                                            Text(
-                                              year,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize:
-                                                    isSpecialYear ? 18 : 16,
-                                                color: isSpecialYear
-                                                    ? Colors.white
-                                                    : null,
+                                            Expanded(
+                                              // Wrap with Expanded to prevent overflow
+                                              child: Text(
+                                                displayYear,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize:
+                                                      isSpecialYear ? 18 : 16,
+                                                  color: isSpecialYear
+                                                      ? Colors.white
+                                                      : null,
+                                                ),
+                                                overflow: TextOverflow
+                                                    .ellipsis, // Add this to handle long text
                                               ),
                                             ),
                                           ],
