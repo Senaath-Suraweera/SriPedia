@@ -11,6 +11,7 @@ class UserData {
   final String? profilePictureUrl; // Add profile picture URL
   final Map<String, dynamic>? additionalData;
 
+  // Remove level-related fields and getters
   UserData({
     required this.id,
     required this.username,

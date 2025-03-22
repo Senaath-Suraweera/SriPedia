@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // Temporarily commented out the confetti import until package is installed
-// import 'package:confetti/confetti.dart';
+import 'package:confetti/confetti.dart';
 import '../../providers/quiz_provider.dart';
 import '../../widgets/neumorphic_widgets.dart';
 
@@ -13,14 +13,18 @@ class QuizResultScreen extends StatefulWidget {
 }
 
 class _QuizResultScreenState extends State<QuizResultScreen> {
-  // Temporarily commented out confetti controller
-  // late ConfettiController _confettiController;
+  late ConfettiController _confettiController;
   bool _showCelebration = false;
+
+  // Remove level-up related variables
+  bool _isSaving = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // _confettiController = ConfettiController(duration: const Duration(seconds: 5));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 5));
 
     // Start celebration animation if score is good
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -29,15 +33,39 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
         setState(() {
           _showCelebration = true;
         });
-        // _confettiController.play();
+        _confettiController.play();
       }
     });
   }
 
   @override
   void dispose() {
-    // _confettiController.dispose();
+    _confettiController.dispose();
     super.dispose();
+  }
+
+  // Replace the _saveQuizResult method with a simplified version
+  Future<void> _saveQuizResult() async {
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+
+      // Simply save the result to Firebase without level-up logic
+      // This method is actually now unused, but keeping a stub for future use
+
+      setState(() {
+        _isSaving = false;
+      });
+    } catch (e) {
+      print('Error saving quiz result: $e');
+      setState(() {
+        _isSaving = false;
+        _errorMessage = 'Could not save your result: $e';
+      });
+    }
   }
 
   String _getPerformanceMessage(int correct, int total) {

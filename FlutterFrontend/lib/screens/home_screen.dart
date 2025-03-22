@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/xp_progress.dart';
 import '../providers/auth_provider.dart';
+import '../providers/user_provider.dart'; // Add this import
 
 // Main home screen after login
 class HomeScreen extends StatefulWidget {
@@ -25,7 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context); // Add this line
     final user = authProvider.user;
+    final userData = userProvider.user; // Add this line
 
     return Scaffold(
       body: SafeArea(
@@ -178,9 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 16),
                         // XP Progress Bar
                         XPProgress(
-                          currentXP: user.xp,
-                          maxXP: user.level * 1000, // Example formula
-                          level: user.level,
+                          currentXP: 100, // Static value
+                          level: 1, // Static value
+                          progress: 30.0, // Static value
+                          quizzesToNextLevel: 7, // Static value
                         ),
                       ],
                     ),
