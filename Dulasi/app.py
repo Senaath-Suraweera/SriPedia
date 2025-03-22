@@ -74,7 +74,9 @@ def get_embedding(text_chunks, user_id,  model_id="text-embedding-ada-002"):
         embeddings = response.data[0].embedding
         point_id = str(uuid.uuid4())  # Generate a unique ID for the point
 
-        points.append(PointStruct(id=point_id, vector=embeddings, payload={"text": chunk, "user_id": user_id}))
+        points.append(PointStruct(id=point_id, 
+                                  vector=embeddings, 
+                                  payload={"text": chunk, "user_id": user_id}))
 
     return points
 
@@ -86,7 +88,7 @@ def insert_data(get_points):
     points=get_points
 )
     
-def create_answer_with_context(query, user_id):  # Add user_id parameter
+def create_answer_with_context(query, user_id):
     # Generate query embedding
     response = client.embeddings.create(
         input=query,
@@ -97,7 +99,7 @@ def create_answer_with_context(query, user_id):  # Add user_id parameter
     # Create user-specific filter
     user_filter = models.Filter(
         must=[models.FieldCondition(
-            key="user_id",  # Metadata field storing user IDs
+            key="user_id",
             match=models.MatchValue(value=user_id)
         )]
     )
@@ -107,14 +109,22 @@ def create_answer_with_context(query, user_id):  # Add user_id parameter
     search_result = connection.search(
         collection_name="SriPedia",
         query_vector=embeddings,
-        query_filter=user_filter,  # Apply metadata filter
-        limit=3  # Increase for better recall
+        query_filter=user_filter,
+        limit=3
     )
 
     prompt = "Context:\n"
     for result in search_result:
         prompt += result.payload['text'] + "\n---\n"
-    prompt += "Question:" + query + "\n---\n" + "Answer:"
+    
+    # Modified prompt with instructions to sound like King Dutugamunu
+    prompt += f"""
+    Question: {query}
+    ---
+    Instructions: Respond to this question as if you were King Dutugamunu, the legendary king of Sri Lanka.
+    ---
+    Answer:
+    """
 
     print("----PROMPT START----")
     print(":", prompt)
@@ -125,7 +135,7 @@ def create_answer_with_context(query, user_id):  # Add user_id parameter
         messages=[
             {"role": "user", "content": prompt}
         ]
-        )
+    )
 
     return completion.choices[0].message.content
 
