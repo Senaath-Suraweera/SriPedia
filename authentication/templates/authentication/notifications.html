@@ -1,0 +1,268 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/notifications.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}Notifications - SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="notifications-header">
+        <h1>Notifications</h1>
+        <div class="notification-actions">
+            <button id="markAllRead" class="btn btn-secondary">Mark All as Read</button>
+            <select id="filterNotifications" class="notification-filter">
+                <option value="all">All Notifications</option>
+                <option value="unread">Unread</option>
+                <option value="quizzes">Quizzes</option>
+                <option value="classrooms">Classrooms</option>
+                <option value="system">System</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="notifications-container">
+        {% if notifications %}
+            <div class="notification-list">
+                {% for notification in notifications %}
+                <div class="notification-item {% if not notification.read %}unread{% endif %}" data-type="{{ notification.type }}">
+                    <div class="notification-icon {{ notification.type }}">
+                        {% if notification.type == 'quiz' %}
+                            <i class="icon-quiz"></i>
+                        {% elif notification.type == 'classroom' %}
+                            <i class="icon-classroom"></i>
+                        {% elif notification.type == 'message' %}
+                            <i class="icon-message"></i>
+                        {% elif notification.type == 'system' %}
+                            <i class="icon-system"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="notification-content">
+                        <p class="notification-message">{{ notification.message }}</p>
+                        <p class="notification-time">{{ notification.created_at|timesince }} ago</p>
+                    </div>
+                    
+                    <div class="notification-actions">
+                        {% if notification.action_url %}
+                        <a href="{{ notification.action_url }}" class="btn btn-sm btn-primary">View</a>
+                        {% endif %}
+                        <button class="btn btn-icon mark-read" title="Mark as read">
+                            <i class="icon-check"></i>
+                        </button>
+                        <button class="btn btn-icon delete-notification" title="Delete">
+                            <i class="icon-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                {% if pagination.has_previous %}
+                    <a href="?page={{ pagination.previous_page_number }}" class="pagination-prev">
+                        <i class="icon-arrow-left"></i> Previous
+                    </a>
+                {% endif %}
+                
+                <div class="pagination-pages">
+                    {% for page_num in pagination.page_range %}
+                        {% if page_num == pagination.current_page %}
+                            <span class="current-page">{{ page_num }}</span>
+                        {% else %}
+                            <a href="?page={{ page_num }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if pagination.has_next %}
+                    <a href="?page={{ pagination.next_page_number }}" class="pagination-next">
+                        Next <i class="icon-arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="no-notifications">
+                <div class="empty-state-icon">🔔</div>
+                <h2>No Notifications</h2>
+                <p>You're all caught up! Check back later for new notifications.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="notifications-settings">
+        <h2>Notification Settings</h2>
+        <form id="notificationPreferences" class="settings-form">
+            {% csrf_token %}
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Email Notifications</h3>
+                    <p>Receive notifications via email</p>
+                </div>
+                <div class="setting-control">
+                    <label class="switch">
+                        <input type="checkbox" name="email_notifications" {% if preferences.email_notifications %}checked{% endif %}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Quiz Reminders</h3>
+                    <p>Notifications about new and upcoming quizzes</p>
+                </div>
+                <div class="setting-control">
+                    <label class="switch">
+                        <input type="checkbox" name="quiz_notifications" {% if preferences.quiz_notifications %}checked{% endif %}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Classroom Updates</h3>
+                    <p>Notifications about classroom activities and assignments</p>
+                </div>
+                <div class="setting-control">
+                    <label class="switch">
+                        <input type="checkbox" name="classroom_notifications" {% if preferences.classroom_notifications %}checked{% endif %}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>System Announcements</h3>
+                    <p>Important updates about SriPedia</p>
+                </div>
+                <div class="setting-control">
+                    <label class="switch">
+                        <input type="checkbox" name="system_notifications" {% if preferences.system_notifications %}checked{% endif %}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter notifications
+        const filterSelect = document.getElementById('filterNotifications');
+        const notificationItems = document.querySelectorAll('.notification-item');
+        
+        filterSelect.addEventListener('change', function() {
+            const filterValue = this.value;
+            
+            notificationItems.forEach(item => {
+                if (filterValue === 'all') {
+                    item.style.display = 'flex';
+                } else if (filterValue === 'unread') {
+                    item.style.display = item.classList.contains('unread') ? 'flex' : 'none';
+                } else {
+                    item.style.display = item.dataset.type === filterValue ? 'flex' : 'none';
+                }
+            });
+        });
+        
+        // Mark individual notification as read
+        const markReadButtons = document.querySelectorAll('.mark-read');
+        markReadButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const notificationItem = this.closest('.notification-item');
+                notificationItem.classList.remove('unread');
+                
+                // In a real app, would make AJAX request to update status
+                const notificationId = notificationItem.dataset.id;
+                console.log(`Marking notification ${notificationId} as read`);
+                
+                // Update notification counter in real app
+            });
+        });
+        
+        // Delete notification
+        const deleteButtons = document.querySelectorAll('.delete-notification');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const notificationItem = this.closest('.notification-item');
+                
+                // Animate removal
+                notificationItem.style.opacity = '0';
+                setTimeout(() => {
+                    notificationItem.style.height = '0';
+                    notificationItem.style.margin = '0';
+                    notificationItem.style.padding = '0';
+                    
+                    setTimeout(() => {
+                        notificationItem.remove();
+                        
+                        // Check if list is empty
+                        if (document.querySelectorAll('.notification-item').length === 0) {
+                            document.querySelector('.notification-list').innerHTML = `
+                                <div class="no-notifications">
+                                    <div class="empty-state-icon">🔔</div>
+                                    <h2>No Notifications</h2>
+                                    <p>You're all caught up! Check back later for new notifications.</p>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }, 200);
+                
+                // In a real app, would make AJAX request to delete
+                const notificationId = notificationItem.dataset.id;
+                console.log(`Deleting notification ${notificationId}`);
+            });
+        });
+        
+        // Mark all as read
+        const markAllReadBtn = document.getElementById('markAllRead');
+        markAllReadBtn.addEventListener('click', function() {
+            const unreadItems = document.querySelectorAll('.notification-item.unread');
+            
+            unreadItems.forEach(item => {
+                item.classList.remove('unread');
+            });
+            
+            // In a real app, would make AJAX request to update all
+            console.log('Marking all notifications as read');
+            
+            // Update notification counter in real app
+        });
+        
+        // Notification preferences form
+        const preferencesForm = document.getElementById('notificationPreferences');
+        preferencesForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(preferencesForm);
+            const preferences = {
+                email_notifications: formData.get('email_notifications') === 'on',
+                quiz_notifications: formData.get('quiz_notifications') === 'on',
+                classroom_notifications: formData.get('classroom_notifications') === 'on',
+                system_notifications: formData.get('system_notifications') === 'on'
+            };
+            
+            // In a real app, would make AJAX request to update preferences
+            console.log('Saving notification preferences:', preferences);
+            
+            // Show success message
+            alert('Notification preferences saved successfully!');
+        });
+    });
+</script>
+{% endblock %}
