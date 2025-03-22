@@ -1,0 +1,175 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/search_results.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}Search Results - SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="search-header">
+        <h1>Search Results</h1>
+        <div class="search-meta">
+            <p>{{ results_count }} results for "<span class="search-term">{{ query }}</span>"</p>
+        </div>
+        
+        <form class="search-form" action="{% url 'search' %}" method="get">
+            <div class="search-input-container">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search SriPedia..." required>
+                <button type="submit" class="search-button">
+                    <i class="icon-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="search-filters">
+        <div class="filter-group">
+            <span class="filter-label">Filter by:</span>
+            <div class="filter-options">
+                <a href="?q={{ query }}&type=all" class="filter-option {% if result_type == 'all' %}active{% endif %}">All</a>
+                <a href="?q={{ query }}&type=content" class="filter-option {% if result_type == 'content' %}active{% endif %}">Content</a>
+                <a href="?q={{ query }}&type=files" class="filter-option {% if result_type == 'files' %}active{% endif %}">Files</a>
+                <a href="?q={{ query }}&type=quizzes" class="filter-option {% if result_type == 'quizzes' %}active{% endif %}">Quizzes</a>
+                <a href="?q={{ query }}&type=classrooms" class="filter-option {% if result_type == 'classrooms' %}active{% endif %}">Classrooms</a>
+            </div>
+        </div>
+        
+        <div class="sort-options">
+            <label for="sortBy">Sort by:</label>
+            <select id="sortBy" class="sort-select">
+                <option value="relevance">Relevance</option>
+                <option value="date_desc">Newest First</option>
+                <option value="date_asc">Oldest First</option>
+                <option value="title_asc">Alphabetical (A-Z)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="search-results">
+        {% if results %}
+            {% for result in results %}
+                <div class="search-result-item">
+                    <div class="result-type-icon">
+                        {% if result.type == 'content' %}
+                            <i class="icon-document"></i>
+                        {% elif result.type == 'file' %}
+                            <i class="icon-file"></i>
+                        {% elif result.type == 'quiz' %}
+                            <i class="icon-quiz"></i>
+                        {% elif result.type == 'classroom' %}
+                            <i class="icon-classroom"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="result-content">
+                        <h3 class="result-title">
+                            <a href="{{ result.url }}">{{ result.title }}</a>
+                        </h3>
+                        <p class="result-meta">
+                            <span class="result-type">{{ result.type|title }}</span>
+                            {% if result.date %} • <span class="result-date">{{ result.date|date:"M d, Y" }}</span>{% endif %}
+                        </p>
+                        <p class="result-description">
+                            {{ result.description }}
+                        </p>
+                        <div class="result-highlight">
+                            <i class="icon-quote"></i>
+                            <p>{{ result.highlight|safe }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <a href="{{ result.url }}" class="btn btn-primary btn-sm">View</a>
+                        {% if result.type == 'file' %}
+                        <a href="{{ result.download_url }}" class="btn btn-secondary btn-sm">Download</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                {% if pagination.has_previous %}
+                    <a href="?q={{ query }}&type={{ result_type }}&page={{ pagination.previous_page_number }}" class="pagination-prev">
+                        <i class="icon-arrow-left"></i> Previous
+                    </a>
+                {% endif %}
+                
+                <div class="pagination-pages">
+                    {% for page_num in pagination.page_range %}
+                        {% if page_num == pagination.current_page %}
+                            <span class="current-page">{{ page_num }}</span>
+                        {% else %}
+                            <a href="?q={{ query }}&type={{ result_type }}&page={{ page_num }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if pagination.has_next %}
+                    <a href="?q={{ query }}&type={{ result_type }}&page={{ pagination.next_page_number }}" class="pagination-next">
+                        Next <i class="icon-arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h2>No results found</h2>
+                <p>We couldn't find any results for "{{ query }}"</p>
+                <div class="search-suggestions">
+                    <h3>Suggestions:</h3>
+                    <ul>
+                        <li>Check your spelling</li>
+                        <li>Try more general keywords</li>
+                        <li>Try different keywords</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sort dropdown functionality
+        const sortSelect = document.getElementById('sortBy');
+        sortSelect.addEventListener('change', function() {
+            // Get current URL
+            const url = new URL(window.location.href);
+            
+            // Update sort parameter
+            url.searchParams.set('sort', this.value);
+            
+            // Navigate to new URL
+            window.location.href = url.href;
+        });
+        
+        // Set the sort dropdown to the current sort value
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortParam = urlParams.get('sort');
+        if (sortParam) {
+            sortSelect.value = sortParam;
+        }
+        
+        // Highlight search terms in result descriptions
+        const searchTerm = '{{ query }}';
+        if (searchTerm) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            const resultDescriptions = document.querySelectorAll('.result-description');
+            
+            resultDescriptions.forEach(description => {
+                description.innerHTML = description.textContent.replace(
+                    regex, 
+                    '<mark>$1</mark>'
+                );
+            });
+        }
+    });
+</script>
+{% endblock %}
