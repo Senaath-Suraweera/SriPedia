@@ -1,0 +1,90 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/about.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}About SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="about-header">
+        <h1>About SriPedia</h1>
+        <p class="tagline">Exploring Sri Lanka's rich heritage through technology</p>
+    </div>
+    
+    <section class="about-mission">
+        <div class="about-image">
+            <img src="{% static 'images/mission.jpg' %}" alt="SriPedia Mission">
+        </div>
+        <div class="about-text">
+            <h2>Our Mission</h2>
+            <p>SriPedia aims to make Sri Lankan history, culture, and knowledge accessible to everyone through innovative technology and interactive learning experiences.</p>
+            <p>We believe in preserving cultural heritage while making it engaging for modern learners through AI-powered tools, collaborative classrooms, and interactive quizzes.</p>
+        </div>
+    </section>
+    
+    <section class="about-features">
+        <h2>Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Chatbot</h3>
+                <p>Our intelligent chatbot answers questions about Sri Lankan history, culture, and traditions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏫</div>
+                <h3>Virtual Classrooms</h3>
+                <p>Connect with teachers and fellow students in collaborative learning spaces.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>Interactive Quizzes</h3>
+                <p>Test your knowledge with dynamically generated quizzes on various topics.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Document Management</h3>
+                <p>Upload and organize your research materials and learning resources.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="about-team">
+        <h2>Our Team</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="{% static 'images/team/member1.jpg' %}" alt="Team Member">
+                <h3>Founder Name</h3>
+                <p>Co-founder & Lead Developer</p>
+            </div>
+            <div class="team-member">
+                <img src="{% static 'images/team/member2.jpg' %}" alt="Team Member">
+                <h3>Team Member</h3>
+                <p>AI Engineer</p>
+            </div>
+            <div class="team-member">
+                <img src="{% static 'images/team/member3.jpg' %}" alt="Team Member">
+                <h3>Team Member</h3>
+                <p>UX Designer</p>
+            </div>
+            <div class="team-member">
+                <img src="{% static 'images/team/member4.jpg' %}" alt="Team Member">
+                <h3>Team Member</h3>
+                <p>Content Specialist</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="about-contact">
+        <h2>Get in Touch</h2>
+        <p>We'd love to hear from you! Whether you have questions, feedback, or just want to say hello.</p>
+        <div class="contact-buttons">
+            <a href="mailto:contact@sripedia.com" class="btn btn-primary">Email Us</a>
+            <a href="{% url 'help' %}" class="btn btn-secondary">Visit Help Center</a>
+        </div>
+    </section>
+</div>
+{% endblock %}
