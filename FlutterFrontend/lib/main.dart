@@ -11,6 +11,7 @@ import 'screens/home_screen.dart';
 import 'screens/placeholder_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/quiz/daily_quiz_screen.dart';
+import 'screens/leaderboard_screen.dart';
 
 void main() async {
   // Catch all Flutter errors
@@ -64,8 +65,7 @@ class MyApp extends StatelessWidget {
           '/signup': (context) => const SignUpScreen(),
           '/home': (context) => const HomeScreen(),
           '/quiz': (context) => const DailyQuizScreen(),
-          '/leaderboard': (context) =>
-              const PlaceholderScreen(title: 'Leaderboard'),
+          '/leaderboard': (context) => const LeaderboardScreen(),
           '/classrooms': (context) =>
               const PlaceholderScreen(title: 'Classrooms'),
           '/store': (context) => const PlaceholderScreen(title: 'Store'),

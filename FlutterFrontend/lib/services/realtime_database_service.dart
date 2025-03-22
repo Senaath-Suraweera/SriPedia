@@ -32,17 +32,37 @@ class RealtimeDatabaseService {
       final snapshot = await ref.get();
 
       if (snapshot.exists) {
-        // User exists, just update the online status
-        await ref.update({
-          'online': isOnline,
-          'lastSeen': ServerValue.timestamp,
-        });
+        // Check if the value is a Map
+        if (snapshot.value is Map) {
+          // User exists, just update the online status
+          await ref.update({
+            'online': isOnline,
+            'lastSeen': ServerValue.timestamp,
+          });
+        } else {
+          // User exists but data is not in expected format (could be a list or other type)
+          // Set it as new data to ensure it's a Map
+          await ref.set({
+            'online': isOnline,
+            'lastSeen': ServerValue.timestamp,
+            'username': 'User', // Set a default username
+            'points': 0,
+            'level': 1,
+            'xp': 0,
+            'role': 'Student',
+          });
+        }
       } else {
         // User doesn't exist yet (first sign in after registration)
-        // Create a minimal record
+        // Create a record with all needed fields
         await ref.set({
           'online': isOnline,
           'lastSeen': ServerValue.timestamp,
+          'username': 'User', // Set a default username
+          'points': 0,
+          'level': 1,
+          'xp': 0,
+          'role': 'Student',
         });
       }
     } catch (e) {
@@ -216,7 +236,7 @@ class RealtimeDatabaseService {
             Map<String, dynamic> questionMap =
                 Map<String, dynamic>.from(question);
 
-            // Generate options if not present (A, B, C, D) and randomly assign correct answer
+            // Generate options if not present
             if (!questionMap.containsKey('options')) {
               questionMap['options'] = [
                 'Option A',
@@ -224,7 +244,15 @@ class RealtimeDatabaseService {
                 'Option C',
                 'Option D'
               ];
-              questionMap['correctOption'] = 0; // Default to first option
+
+              // Map correct_index to correctOption for compatibility
+              if (questionMap.containsKey('correct_index')) {
+                questionMap['correctOption'] = questionMap['correct_index'];
+              } else {
+                // Default to first option if no correct answer specified
+                questionMap['correct_index'] = 0;
+                questionMap['correctOption'] = 0;
+              }
             }
 
             // Add question index for reference
@@ -238,6 +266,7 @@ class RealtimeDatabaseService {
             'Successfully loaded ${questions.length} questions for date: $date');
         return questions;
       }
+
       // Legacy path - use the old method implementation
       else {
         DataSnapshot snapshot = await questionsRef
@@ -340,5 +369,71 @@ class RealtimeDatabaseService {
   Future<void> leaveClassroom(String uid, String classroomId) async {
     await classroomsRef.child(classroomId).child('members').child(uid).remove();
     await userRef(uid).child('classrooms').child(classroomId).remove();
+  }
+
+  // Get leaderboard dates for a specific category
+  Future<List<String>> getLeaderboardDatesForCategory(String category) async {
+    try {
+      DataSnapshot snapshot =
+          await _databaseRef.child('leaderboards').child(category).get();
+
+      if (!snapshot.exists || snapshot.value == null) {
+        return [];
+      }
+
+      // Get dates from the leaderboard category
+      Map<dynamic, dynamic> datesMap = snapshot.value as Map<dynamic, dynamic>;
+      List<String> dates = datesMap.keys.cast<String>().toList();
+
+      // Sort dates in descending order (newest first)
+      dates.sort((a, b) => b.compareTo(a));
+
+      return dates;
+    } catch (e) {
+      print('Error getting leaderboard dates: $e');
+      return [];
+    }
+  }
+
+  // Get leaderboard data for a specific date and category
+  Future<List<Map<String, dynamic>>> getLeaderboardByDateAndCategory({
+    required String category,
+    required String date,
+  }) async {
+    try {
+      DataSnapshot snapshot = await _databaseRef
+          .child('leaderboards')
+          .child(category)
+          .child(date)
+          .get();
+
+      if (!snapshot.exists || snapshot.value == null) {
+        return [];
+      }
+
+      Map<dynamic, dynamic> usersMap = snapshot.value as Map<dynamic, dynamic>;
+      List<Map<String, dynamic>> leaderboardData = [];
+
+      usersMap.forEach((userId, userData) {
+        // Skip if userData is not a map
+        if (userData is! Map) return;
+
+        Map<String, dynamic> entry = Map<String, dynamic>.from(userData);
+        // Add the userId to the entry for reference
+        entry['userId'] = userId;
+
+        // Ensure there's a score - default to 0
+        if (!entry.containsKey('score')) {
+          entry['score'] = 0;
+        }
+
+        leaderboardData.add(entry);
+      });
+
+      return leaderboardData;
+    } catch (e) {
+      print('Error getting leaderboard data: $e');
+      return [];
+    }
   }
 }

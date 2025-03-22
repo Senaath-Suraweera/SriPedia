@@ -48,12 +48,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         );
 
-        // Attempt registration - always setting role to "Student"
+        // Attempt registration - removed role parameter
         bool success = await authProvider.register(
           _emailController.text.trim(),
           _passwordController.text,
           _usernameController.text.trim(),
-          "Student", // Default role is now always "Student"
         );
 
         // Close loading dialog

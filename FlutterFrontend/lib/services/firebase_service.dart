@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../models/user_model.dart';
 import 'realtime_database_service.dart';
+import 'dart:math'; // For min() function
 
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -48,13 +49,17 @@ class FirebaseService {
       );
     } catch (e) {
       print('Unexpected error during sign in: $e');
-      rethrow;
+      // Added more descriptive error information to help debugging
+      if (e is TypeError) {
+        print('Type error details: ${e.toString()}');
+      }
+      throw Exception('Authentication error: ${e.toString()}');
     }
   }
 
   // Register with email and password
   Future<UserCredential> registerWithEmailAndPassword(
-      String email, String password, String username, String role) async {
+      String email, String password, String username) async {
     try {
       print('Attempting to register with email: $email');
       // Create user with email and password
@@ -69,12 +74,12 @@ class FirebaseService {
       if (userCredential.user != null) {
         final String uid = userCredential.user!.uid;
 
-        // Create UserModel
+        // Create UserModel - always set role to "Student" by default
         final userModel = UserModel(
           uid: uid,
           email: email,
           username: username,
-          role: role,
+          role: "Student", // Default role is always "Student"
         );
 
         try {
@@ -87,7 +92,6 @@ class FirebaseService {
           print('Display name updated');
 
           // Add user to Realtime Database - do this last to avoid the initial sign-in issue
-          // We'll handle this separately to avoid crashing during the first authentication
           try {
             await _realtimeDB.saveUserToRealtimeDB(userModel);
             print('User added to Realtime Database');
@@ -174,23 +178,83 @@ class FirebaseService {
         // Debug the value type we're getting
         if (rtdbSnapshot.exists && rtdbSnapshot.value != null) {
           print('RTDB data found for user');
+          print('RTDB data type: ${rtdbSnapshot.value.runtimeType}');
+          print('RTDB data value: ${rtdbSnapshot.value}');
 
           // Handle different possible types from RTDB
           if (rtdbSnapshot.value is Map) {
             print('RTDB data is a Map, using it directly');
-            return Map<String, dynamic>.from(rtdbSnapshot.value as Map);
-          } else {
-            print('RTDB data is not a Map, creating fallback data');
-            // Return minimal placeholder data if we can't get proper data
+            final data = Map<String, dynamic>.from(rtdbSnapshot.value as Map);
+
+            // Make sure critical fields exist
+            if (!data.containsKey('username')) {
+              data['username'] = currentUser!.displayName ?? 'User';
+            }
+            if (!data.containsKey('role')) {
+              data['role'] = 'Student';
+            }
+            if (!data.containsKey('points')) {
+              data['points'] = 0;
+            }
+            if (!data.containsKey('level')) {
+              data['level'] = 1;
+            }
+            if (!data.containsKey('xp')) {
+              data['xp'] = 0;
+            }
+
+            return data;
+          } else if (rtdbSnapshot.value is List) {
+            print('RTDB data is a List, converting to Map');
+
+            // Return basic user data
             return {
               'email': currentUser!.email ?? '',
-              'username': currentUser!.displayName ?? uid.substring(0, 6),
+              'username': currentUser!.displayName ??
+                  uid.substring(0, min(uid.length, 6)),
+              'role': 'Student',
+              'points': 0,
+              'level': 1,
+              'xp': 0,
+              'online': true,
+              'lastSeen': DateTime.now().millisecondsSinceEpoch,
+            };
+          } else {
+            print('RTDB data is not a usable type: ${rtdbSnapshot.value}');
+            // Return minimal placeholder data
+            return {
+              'email': currentUser!.email ?? '',
+              'username': currentUser!.displayName ?? 'User',
               'role': 'Student',
               'points': 0,
               'level': 1,
               'xp': 0,
             };
           }
+        } else {
+          print('No RTDB data found, creating new user data');
+
+          // No data exists - create and save basic user data
+          final userData = {
+            'email': currentUser!.email ?? '',
+            'username': currentUser!.displayName ?? 'User',
+            'role': 'Student',
+            'points': 0,
+            'level': 1,
+            'xp': 0,
+            'online': true,
+            'lastSeen': ServerValue.timestamp,
+          };
+
+          // Save this data to RTDB
+          try {
+            await _realtimeDB.userRef(uid).set(userData);
+            print('Created new user data in RTDB');
+          } catch (e) {
+            print('Failed to create user data in RTDB: $e');
+          }
+
+          return userData;
         }
       } catch (e) {
         print('Error fetching from RTDB: $e');

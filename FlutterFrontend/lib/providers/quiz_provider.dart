@@ -117,9 +117,11 @@ class QuizProvider extends ChangeNotifier {
             ];
           }
 
-          // Use provided correct option or default to first
+          // Look for correct_index field first, fall back to correctOption if not found
           int correctOption = 0;
-          if (question.containsKey('correctOption')) {
+          if (question.containsKey('correct_index')) {
+            correctOption = question['correct_index'] as int? ?? 0;
+          } else if (question.containsKey('correctOption')) {
             correctOption = question['correctOption'] as int? ?? 0;
           }
 

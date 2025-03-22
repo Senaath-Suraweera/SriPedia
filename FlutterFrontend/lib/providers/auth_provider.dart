@@ -103,37 +103,77 @@ class AuthProvider extends ChangeNotifier {
           print('Received real-time update for user: ${_user?.uid}');
           print('Update data type: ${event.snapshot.value.runtimeType}');
 
-          // Safely extract the data based on its type
-          Map<String, dynamic> data;
+          // Add debug output to understand the data structure
+          print('Update data content: ${event.snapshot.value}');
+
+          // Safely extract the data based on its type with better error handling
+          Map<String, dynamic> data = {};
 
           if (event.snapshot.value is Map) {
             // Handle map data - normal case
             data = Map<String, dynamic>.from(event.snapshot.value as Map);
           } else if (event.snapshot.value is List) {
-            // Handle list data - special case in Realtime DB
+            // Handle empty list case more explicitly
             print('Warning: Received List data instead of Map');
 
-            // Create a fallback map with basic data
+            // Create a minimal working data structure that won't cause issues
             data = {
               'online': true,
               'lastSeen': DateTime.now().millisecondsSinceEpoch,
+              'username': _user?.username ?? 'User',
+              'role': _user?.role ?? 'Student',
+              'points': _user?.points ?? 0,
+              'level': _user?.level ?? 1,
+              'xp': _user?.xp ?? 0,
             };
           } else {
-            // Unable to process this type
             print(
-                'Error: Cannot process data of type ${event.snapshot.value.runtimeType}');
-            return;
+                'Warning: Unexpected value type ${event.snapshot.value.runtimeType}');
+            data = {
+              'online': true,
+              'lastSeen': DateTime.now().millisecondsSinceEpoch,
+              'username': _user?.username ?? 'User',
+              'role': _user?.role ?? 'Student',
+              'points': _user?.points ?? 0,
+              'level': _user?.level ?? 1,
+              'xp': _user?.xp ?? 0,
+            };
           }
 
           // Update the user model with a try-catch for additional safety
           try {
-            _user = UserModel.fromMap(_user!.uid, {
-              ..._user!.toMap(), // Keep existing data as base
-              ...data, // Override with real-time data
+            // Create a merged map that preserves existing user data
+            Map<String, dynamic> mergedData = {
+              'uid': _user!.uid,
+              'email': _user!.email,
+              'username': _user!.username,
+              'role': _user!.role,
+              'points': _user!.points,
+              'level': _user!.level,
+              'xp': _user!.xp,
+            };
+
+            // Only add properties from data that exist and aren't null
+            data.forEach((key, value) {
+              if (value != null) {
+                mergedData[key] = value;
+              }
             });
 
-            notifyListeners();
-            print('User model updated successfully');
+            // Create new user model from merged data
+            final updatedUser = UserModel.fromMap(_user!.uid, mergedData);
+
+            // Only notify listeners if there's an actual change
+            if (_user!.username != updatedUser.username ||
+                _user!.points != updatedUser.points ||
+                _user!.level != updatedUser.level ||
+                _user!.xp != updatedUser.xp) {
+              _user = updatedUser;
+              notifyListeners();
+              print('User model updated successfully');
+            } else {
+              print('No significant changes, skipping update');
+            }
           } catch (e) {
             print('Error updating user model: $e');
           }
@@ -179,6 +219,34 @@ class AuthProvider extends ChangeNotifier {
       print('AuthProvider: Attempting to sign in');
       await _firebaseService.signInWithEmailAndPassword(email, password);
       print('AuthProvider: Sign in successful');
+
+      // Explicit user data loading with timeout protection
+      bool userDataLoaded = false;
+      try {
+        if (_firebaseService.currentUser != null) {
+          final userData = await _firebaseService.getUserData();
+          if (userData != null) {
+            _user =
+                UserModel.fromMap(_firebaseService.currentUser!.uid, userData);
+            userDataLoaded = true;
+            print("User data explicitly loaded: ${_user!.username}");
+          }
+        }
+      } catch (loadUserError) {
+        print('AuthProvider: Error loading user after sign in: $loadUserError');
+      }
+
+      // Add critical fallback - if we still don't have user data, create a minimal user
+      if (!userDataLoaded && _firebaseService.currentUser != null) {
+        print('Creating minimal user model as fallback');
+        _user = UserModel(
+          uid: _firebaseService.currentUser!.uid,
+          email: _firebaseService.currentUser!.email ?? email,
+          username: _firebaseService.currentUser!.displayName ?? 'User',
+          role: 'Student',
+        );
+      }
+
       _setLoading(false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -194,16 +262,15 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Register with email and password - add better error handling
-  Future<bool> register(
-      String email, String password, String username, String role) async {
+  // Register with email and password - simplified to remove role parameter
+  Future<bool> register(String email, String password, String username) async {
     _setLoading(true);
     _clearError();
 
     try {
       print('Attempting registration for: $email');
       await _firebaseService.registerWithEmailAndPassword(
-          email, password, username, role);
+          email, password, username);
 
       print('Registration successful');
       _setLoading(false);

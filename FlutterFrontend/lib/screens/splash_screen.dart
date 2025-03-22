@@ -24,8 +24,19 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     try {
-      // Get Firebase auth directly instead of relying on AuthProvider initially
-      final firebaseUser = FirebaseAuth.instance.currentUser;
+      // Add more reliable Firebase auth check with timeout
+      User? firebaseUser;
+      try {
+        // Add timeout to prevent hanging
+        firebaseUser = await Future.any([
+          Future.value(FirebaseAuth.instance.currentUser),
+          Future.delayed(const Duration(seconds: 5), () => null)
+        ]);
+      } catch (e) {
+        print('Firebase auth check timed out: $e');
+        firebaseUser = FirebaseAuth.instance.currentUser;
+      }
+
       print(
           'Firebase current user: ${firebaseUser?.uid ?? 'No user logged in'}');
 
