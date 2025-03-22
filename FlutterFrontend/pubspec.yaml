@@ -18,7 +18,8 @@ dependencies:
   confetti: ^0.7.0
   intl: ^0.20.2
   font_awesome_flutter: ^10.8.0
-
+  image_picker: ^1.0.7
+  firebase_storage: ^11.6.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

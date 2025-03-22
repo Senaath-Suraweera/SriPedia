@@ -1,17 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Add this import
+import 'dart:io'; // Add this import
 
 class UserData {
   final String id;
   final String username;
   final String email;
+  final String? profilePictureUrl; // Add profile picture URL
   final Map<String, dynamic>? additionalData;
 
   UserData({
     required this.id,
     required this.username,
     required this.email,
+    this.profilePictureUrl,
     this.additionalData,
   });
 }
@@ -63,6 +67,7 @@ class UserProvider with ChangeNotifier {
           id: userId,
           username: userData['username'] ?? 'User',
           email: _auth.currentUser!.email ?? '',
+          profilePictureUrl: userData['profilePictureUrl'],
           additionalData: userData,
         );
       } else {
@@ -98,6 +103,36 @@ class UserProvider with ChangeNotifier {
       await loadUserData(); // Reload the user data
     } catch (e) {
       debugPrint('Error updating user data: $e');
+      rethrow;
+    }
+  }
+
+  // Add method to upload profile picture and update user data
+  Future<void> uploadProfilePicture(File imageFile) async {
+    if (_auth.currentUser == null) return;
+
+    try {
+      final userId = _auth.currentUser!.uid;
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_pictures')
+          .child('$userId.jpg');
+
+      // Upload the file
+      await storageRef.putFile(imageFile);
+
+      // Get the download URL
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      // Update user data with the profile picture URL
+      await _database.ref('users/$userId').update({
+        'profilePictureUrl': downloadUrl,
+      });
+
+      // Reload user data
+      await loadUserData();
+    } catch (e) {
+      debugPrint('Error uploading profile picture: $e');
       rethrow;
     }
   }
