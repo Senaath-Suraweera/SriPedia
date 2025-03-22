@@ -1,0 +1,129 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/achievements.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}My Achievements - SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/achievements.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="achievements-header">
+        <h1>My Achievements</h1>
+        <div class="achievement-stats">
+            <div class="stat">
+                <span class="stat-number">{{ badges_earned }}</span>
+                <span class="stat-label">Badges Earned</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ quizzes_completed }}</span>
+                <span class="stat-label">Quizzes Completed</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ days_streak }}</span>
+                <span class="stat-label">Day Streak</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="achievements-container">
+        <h2>Earned Badges</h2>
+        <div class="badges-grid">
+            {% for badge in earned_badges %}
+            <div class="badge-card earned">
+                <div class="badge-icon">
+                    <img src="{% static badge.icon_url %}" alt="{{ badge.name }}">
+                </div>
+                <div class="badge-info">
+                    <h3>{{ badge.name }}</h3>
+                    <p class="badge-description">{{ badge.description }}</p>
+                    <p class="badge-date">Earned on {{ badge.earned_date|date:"F j, Y" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% for badge in locked_badges %}
+            <div class="badge-card locked">
+                <div class="badge-icon">
+                    <img src="{% static badge.icon_url %}" alt="{{ badge.name }}" class="locked">
+                </div>
+                <div class="badge-info">
+                    <h3>{{ badge.name }}</h3>
+                    <p class="badge-description">{{ badge.description }}</p>
+                    <p class="badge-requirement">{{ badge.requirement }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h2>Learning Milestones</h2>
+        <div class="milestones-container">
+            <div class="milestone-timeline">
+                {% for milestone in milestones %}
+                <div class="milestone-item {% if milestone.completed %}completed{% endif %}">
+                    <div class="milestone-marker"></div>
+                    <div class="milestone-content">
+                        <h3>{{ milestone.title }}</h3>
+                        <p>{{ milestone.description }}</p>
+                        {% if milestone.completed %}
+                        <span class="milestone-date">Completed on {{ milestone.completed_date|date:"F j, Y" }}</span>
+                        {% else %}
+                        <span class="milestone-progress">{{ milestone.progress }}% completed</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="share-achievements">
+        <h2>Share Your Achievements</h2>
+        <p>Let your friends know about your progress!</p>
+        <div class="share-buttons">
+            <button class="btn btn-facebook">Share on Facebook</button>
+            <button class="btn btn-twitter">Share on Twitter</button>
+            <button class="btn btn-copy">Copy Link</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Badge details popup
+        const badgeCards = document.querySelectorAll('.badge-card');
+        
+        badgeCards.forEach(card => {
+            card.addEventListener('click', function() {
+                if (!this.classList.contains('locked')) {
+                    // Toggle detailed view or show modal
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+        
+        // Share functionality
+        const copyBtn = document.querySelector('.btn-copy');
+        copyBtn.addEventListener('click', function() {
+            // Create a dummy input to copy the URL
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            
+            // Show feedback
+            const originalText = this.textContent;
+            this.textContent = 'Link Copied!';
+            setTimeout(() => {
+                this.textContent = originalText;
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}
