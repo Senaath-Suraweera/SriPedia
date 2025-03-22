@@ -1,0 +1,18 @@
+{% extends "authentication/base.html" %}
+{% load static %}
+
+{% block title %}Server Error - SriPedia{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-content">
+        <h1>500</h1>
+        <h2>Server Error</h2>
+        <p>Something went wrong on our end. We're working to fix it.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+    </div>
+    <div class="error-image">
+        <img src="{% static 'images/500.svg' %}" alt="Server error illustration">
+    </div>
+</div>
+{% endblock %}
