@@ -1,0 +1,125 @@
+<!-- filepath: /Users/senaathsuraweera/02_IIT/SDGP/SriPedia copy 6/authentication/templates/authentication/feedback.html -->
+{% extends "authentication/base_logged_in.html" %}
+{% load static %}
+
+{% block title %}Provide Feedback - SriPedia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/feedback.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Help Us Improve SriPedia</h1>
+    <p class="subtitle">Your feedback is valuable in making SriPedia better for everyone</p>
+    
+    <div class="feedback-container">
+        <form id="feedbackForm" method="post" action="{% url 'submit_feedback' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="feedback_type">What kind of feedback do you have?</label>
+                <select id="feedback_type" name="feedback_type" required>
+                    <option value="" disabled selected>Select feedback type</option>
+                    <option value="suggestion">Feature Suggestion</option>
+                    <option value="bug">Bug Report</option>
+                    <option value="content">Content Feedback</option>
+                    <option value="experience">User Experience</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="feedback_subject">Subject</label>
+                <input type="text" id="feedback_subject" name="subject" placeholder="Brief subject of your feedback" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="feedback_message">Your Feedback</label>
+                <textarea id="feedback_message" name="message" rows="5" placeholder="Please provide details about your experience or suggestion..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="satisfaction">How satisfied are you with SriPedia?</label>
+                <div class="rating-container">
+                    <div class="rating">
+                        <input type="radio" id="star5" name="satisfaction" value="5">
+                        <label for="star5">5 stars</label>
+                        <input type="radio" id="star4" name="satisfaction" value="4">
+                        <label for="star4">4 stars</label>
+                        <input type="radio" id="star3" name="satisfaction" value="3">
+                        <label for="star3">3 stars</label>
+                        <input type="radio" id="star2" name="satisfaction" value="2">
+                        <label for="star2">2 stars</label>
+                        <input type="radio" id="star1" name="satisfaction" value="1">
+                        <label for="star1">1 star</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="contact_permission">
+                    <span class="checkmark"></span>
+                    I'm willing to be contacted about my feedback
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+        
+        <div id="feedbackSuccess" class="feedback-success">
+            <div class="success-icon">✓</div>
+            <h2>Thank You for Your Feedback!</h2>
+            <p>We appreciate you taking the time to help us improve SriPedia.</p>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const feedbackForm = document.getElementById('feedbackForm');
+        const feedbackSuccess = document.getElementById('feedbackSuccess');
+        
+        // Hide success message initially
+        feedbackSuccess.style.display = 'none';
+        
+        // Form submission
+        feedbackForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(feedbackForm);
+            
+            // Submit form via fetch
+            fetch('{% url "submit_feedback" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    feedbackForm.style.display = 'none';
+                    feedbackSuccess.style.display = 'block';
+                } else {
+                    // Show error
+                    alert('There was an error submitting your feedback. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error submitting your feedback. Please try again.');
+            });
+        });
+    });
+</script>
+{% endblock %}
