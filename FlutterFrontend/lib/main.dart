@@ -17,6 +17,20 @@ import 'pages/classroom_details_page.dart';
 import 'pages/my_classrooms_page.dart';
 import 'providers/user_provider.dart';
 
+// Define app theme constants
+class AppTheme {
+  // Primary colors
+  static const Color primaryColor = Color(0xFF2A6F97);
+  static const Color scaffoldBgColor = Color(0xFF1E1E2E);
+  static const Color cardColor = Color(0xFF252836);
+  static const Color buttonColor = Color(0xFF252836);
+
+  // For neumorphic effects
+  static Color shadowDark(BuildContext context) =>
+      Colors.black.withOpacity(0.3);
+  static Color shadowLight(BuildContext context) => const Color(0xFF3F3F5F);
+}
+
 void main() async {
   // Catch all Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -62,10 +76,11 @@ class MyApp extends StatelessWidget {
       title: 'SriPediaAI',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2A6F97),
+          seedColor: AppTheme.primaryColor,
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: const Color(0xFF1E1E2E),
+        scaffoldBackgroundColor: AppTheme.scaffoldBgColor,
+        cardColor: AppTheme.cardColor,
         useMaterial3: true,
       ),
       home: const SplashScreen(),

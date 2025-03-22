@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart'; // Add this import
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Add this import
 import '../providers/user_provider.dart'; // Add this import
+import '../main.dart'; // Import for AppTheme
 
 class MyClassroomsPage extends StatefulWidget {
   const MyClassroomsPage({Key? key}) : super(key: key);
@@ -11,7 +13,8 @@ class MyClassroomsPage extends StatefulWidget {
   _MyClassroomsPageState createState() => _MyClassroomsPageState();
 }
 
-class _MyClassroomsPageState extends State<MyClassroomsPage> {
+class _MyClassroomsPageState extends State<MyClassroomsPage>
+    with SingleTickerProviderStateMixin {
   final FirebaseDatabase _database = FirebaseDatabase.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -19,10 +22,26 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
   List<Map<String, dynamic>> _classrooms = [];
   String? _errorMessage;
 
+  // Add animation controller for gamified effects
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
     _loadClassrooms();
+
+    // Initialize animations
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+        CurvedAnimation(
+            parent: _animationController, curve: Curves.elasticOut));
+
+    _animationController.forward();
   }
 
   @override
@@ -33,6 +52,12 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
     if (!_isLoading && userProvider.user != null) {
       _loadClassrooms();
     }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadClassrooms() async {
@@ -95,94 +120,168 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
     }
   }
 
+  // Get an icon based on classroom subject/type
+  IconData _getClassroomIcon(Map<String, dynamic> classroom) {
+    final name = classroom['name']?.toString().toLowerCase() ?? '';
+
+    if (name.contains('math') || name.contains('maths')) {
+      return FontAwesomeIcons.squareRootVariable;
+    } else if (name.contains('science') || name.contains('biology')) {
+      return FontAwesomeIcons.flask;
+    } else if (name.contains('computer') || name.contains('programming')) {
+      return FontAwesomeIcons.laptopCode;
+    } else if (name.contains('history')) {
+      return FontAwesomeIcons.bookOpen;
+    } else if (name.contains('language') || name.contains('english')) {
+      return FontAwesomeIcons.language;
+    } else if (name.contains('art') || name.contains('drawing')) {
+      return FontAwesomeIcons.paintbrush;
+    } else if (name.contains('music')) {
+      return FontAwesomeIcons.music;
+    } else if (name.contains('physics')) {
+      return FontAwesomeIcons.atom;
+    } else {
+      return FontAwesomeIcons.graduationCap;
+    }
+  }
+
   Widget _buildClassroomCard(Map<String, dynamic> classroom, bool isTeacher) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(4, 4),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-          BoxShadow(
-            color: Colors.grey.shade800,
-            offset: const Offset(-4, -4),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/classroom_details',
-            arguments: classroom['id'],
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      classroom['name'] ?? 'Unnamed Classroom',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  if (isTeacher)
+    final icon = _getClassroomIcon(classroom);
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.shadowDark(context),
+              offset: const Offset(4, 4),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+            BoxShadow(
+              color: AppTheme.shadowLight(context),
+              offset: const Offset(-4, -4),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: InkWell(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/classroom_details',
+              arguments: classroom['id'],
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.2),
+                        color: AppTheme.primaryColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        'Teacher',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                      child: FaIcon(
+                        icon,
+                        color: AppTheme.primaryColor,
+                        size: 20,
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                classroom['description'] ?? 'No description',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[400],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            classroom['name'] ?? 'Unnamed Classroom',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                isTeacher ? Icons.stars : Icons.person,
+                                size: 14,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isTeacher
+                                    ? 'You teach this class'
+                                    : 'You\'re a student',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isTeacher)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.star, size: 12, color: Colors.amber),
+                            SizedBox(width: 4),
+                            Text(
+                              'Teacher',
+                              style: TextStyle(
+                                color: Colors.amber,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Theme.of(context).primaryColor,
-                    size: 18,
+                const SizedBox(height: 12),
+                Text(
+                  classroom['description'] ?? 'No description',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[400],
                   ),
-                ],
-              ),
-            ],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: AppTheme.primaryColor,
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -198,6 +297,7 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
         appBar: AppBar(
           title: const Text('My Classrooms'),
           elevation: 0,
+          backgroundColor: AppTheme.cardColor,
         ),
         body: Center(
           child: Column(
@@ -208,17 +308,10 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).primaryColor,
-                      Theme.of(context).primaryColor.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppTheme.buttonColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).primaryColor.withOpacity(0.4),
+                      color: AppTheme.shadowDark(context),
                       offset: const Offset(2, 2),
                       blurRadius: 6,
                     ),
@@ -245,8 +338,15 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Classrooms'),
+        title: Row(
+          children: [
+            const FaIcon(FontAwesomeIcons.userGraduate, size: 18),
+            const SizedBox(width: 10),
+            const Text('My Classrooms'),
+          ],
+        ),
         elevation: 0,
+        backgroundColor: AppTheme.cardColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -272,26 +372,21 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const FaIcon(
+                            FontAwesomeIcons.bookOpen,
+                            size: 70,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 20),
                           const Text("You haven't joined any classrooms yet."),
                           const SizedBox(height: 16),
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.of(context).primaryColor,
-                                  Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.8),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: AppTheme.buttonColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.4),
+                                  color: AppTheme.shadowDark(context),
                                   offset: const Offset(2, 2),
                                   blurRadius: 6,
                                 ),
@@ -325,17 +420,10 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
       floatingActionButton: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: AppTheme.buttonColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: AppTheme.shadowDark(context),
               offset: const Offset(2, 2),
               blurRadius: 6,
             ),
@@ -347,7 +435,7 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: const Icon(Icons.add),
+          child: const FaIcon(FontAwesomeIcons.plus),
           tooltip: 'Join a Classroom',
         ),
       ),
