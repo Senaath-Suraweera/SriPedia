@@ -15,7 +15,8 @@ dependencies:
   cloud_firestore: ^4.9.1
   firebase_database: ^10.2.5
   provider: ^6.1.2
-  confetti: ^0.7.0 # Updated to a version compatible with your Flutter
+  confetti: ^0.7.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
