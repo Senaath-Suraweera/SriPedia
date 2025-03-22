@@ -174,6 +174,7 @@ class _ClassroomJoinPageState extends State<ClassroomJoinPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Join Classroom'),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -185,31 +186,72 @@ class _ClassroomJoinPageState extends State<ClassroomJoinPage> {
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _codeController,
-              decoration: InputDecoration(
-                labelText: 'Classroom Code',
-                hintText: 'Enter 8-digit code',
-                border: const OutlineInputBorder(),
-                errorText: _errorMessage,
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    offset: const Offset(4, 4),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                  BoxShadow(
+                    color: Colors.grey.shade800,
+                    offset: const Offset(-4, -4),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ],
               ),
-              maxLength: 8,
-              textCapitalization: TextCapitalization.characters,
-              onChanged: (value) {
-                if (value.length == 8) {
-                  _validateCode(value);
-                } else {
-                  setState(() {
-                    _isCodeValid = false;
-                    _classroomData = null;
-                  });
-                }
-              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextField(
+                  controller: _codeController,
+                  decoration: InputDecoration(
+                    labelText: 'Classroom Code',
+                    hintText: 'Enter 8-digit code',
+                    border: InputBorder.none,
+                    errorText: _errorMessage,
+                  ),
+                  maxLength: 8,
+                  textCapitalization: TextCapitalization.characters,
+                  onChanged: (value) {
+                    if (value.length == 8) {
+                      _validateCode(value);
+                    } else {
+                      setState(() {
+                        _isCodeValid = false;
+                        _classroomData = null;
+                      });
+                    }
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             if (_isLoading) const Center(child: CircularProgressIndicator()),
             if (_classroomData != null && _isCodeValid)
-              Card(
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      offset: const Offset(4, 4),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: Colors.grey.shade800,
+                      offset: const Offset(-4, -4),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -234,23 +276,59 @@ class _ClassroomJoinPageState extends State<ClassroomJoinPage> {
                       ),
                       const SizedBox(height: 16),
                       if (!_hasJoined)
-                        ElevatedButton(
-                          onPressed: _isJoining ? null : _joinClassroom,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context).primaryColor,
+                                Theme.of(context).primaryColor.withOpacity(0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.4),
+                                offset: const Offset(2, 2),
+                                blurRadius: 6,
+                              ),
+                            ],
                           ),
-                          child: _isJoining
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text('Join Classroom'),
+                          child: ElevatedButton(
+                            onPressed: _isJoining ? null : _joinClassroom,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: _isJoining
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : const Text('Join Classroom'),
+                          ),
                         )
                       else
-                        const Text(
-                          'You have joined this classroom',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'You have joined this classroom',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                     ],

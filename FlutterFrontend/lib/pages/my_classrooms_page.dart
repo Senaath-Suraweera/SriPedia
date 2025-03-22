@@ -95,6 +95,100 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
     }
   }
 
+  Widget _buildClassroomCard(Map<String, dynamic> classroom, bool isTeacher) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            offset: const Offset(4, 4),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: Colors.grey.shade800,
+            offset: const Offset(-4, -4),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            '/classroom_details',
+            arguments: classroom['id'],
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      classroom['name'] ?? 'Unnamed Classroom',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  if (isTeacher)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Teacher',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                classroom['description'] ?? 'No description',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[400],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.arrow_forward,
+                    color: Theme.of(context).primaryColor,
+                    size: 18,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Check if user is authenticated, otherwise show login prompt
@@ -103,6 +197,7 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('My Classrooms'),
+          elevation: 0,
         ),
         body: Center(
           child: Column(
@@ -110,11 +205,37 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
             children: [
               const Text('You need to log in to access classrooms'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-                child: const Text('Log In'),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).primaryColor.withOpacity(0.4),
+                      offset: const Offset(2, 2),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    elevation: 0,
+                  ),
+                  child: const Text('Log In'),
+                ),
               ),
             ],
           ),
@@ -125,6 +246,7 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Classrooms'),
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -152,11 +274,41 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
                         children: [
                           const Text("You haven't joined any classrooms yet."),
                           const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/join_classroom');
-                            },
-                            child: const Text('Join a Classroom'),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).primaryColor,
+                                  Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.8),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.4),
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/join_classroom');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                shadowColor: Colors.transparent,
+                                elevation: 0,
+                              ),
+                              child: const Text('Join a Classroom'),
+                            ),
                           ),
                         ],
                       ),
@@ -167,40 +319,37 @@ class _MyClassroomsPageState extends State<MyClassroomsPage> {
                         final classroom = _classrooms[index];
                         final isTeacher = classroom['isTeacher'] == true;
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: ListTile(
-                            title:
-                                Text(classroom['name'] ?? 'Unnamed Classroom'),
-                            subtitle: Text(
-                                classroom['description'] ?? 'No description'),
-                            trailing: isTeacher
-                                ? const Chip(
-                                    label: Text('Teacher'),
-                                    backgroundColor: Colors.blue,
-                                    labelStyle: TextStyle(color: Colors.white),
-                                  )
-                                : const Icon(Icons.arrow_forward),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/classroom_details',
-                                arguments: classroom['id'],
-                              );
-                            },
-                          ),
-                        );
+                        return _buildClassroomCard(classroom, isTeacher);
                       },
                     ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/join_classroom');
-        },
-        child: const Icon(Icons.add),
-        tooltip: 'Join a Classroom',
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withOpacity(0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              offset: const Offset(2, 2),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/join_classroom');
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: const Icon(Icons.add),
+          tooltip: 'Join a Classroom',
+        ),
       ),
     );
   }

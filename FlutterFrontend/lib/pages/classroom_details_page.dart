@@ -76,8 +76,26 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
         final uploadedAt = DateTime.parse(material['uploaded_at'] as String);
         final formattedDate = DateFormat('MMM d, yyyy').format(uploadedAt);
 
-        return Card(
+        return Container(
           margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                offset: const Offset(3, 3),
+                blurRadius: 6,
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.grey.shade800,
+                offset: const Offset(-3, -3),
+                blurRadius: 6,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
           child: ListTile(
             title: Text(material['title'] ?? 'Untitled Material'),
             subtitle: Column(
@@ -88,7 +106,19 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
                     style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
             ),
-            trailing: const Icon(Icons.download_rounded),
+            trailing: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  Icons.download_rounded,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
             onTap: () {
               // Handle material download or view
               if (material.containsKey('firebase_path')) {
@@ -128,15 +158,46 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
         final joinedAt = DateTime.parse(student['joined_at'] as String);
         final formattedDate = DateFormat('MMM d, yyyy').format(joinedAt);
 
-        return ListTile(
-          leading: CircleAvatar(
-            child: Text(student['username'][0].toUpperCase()),
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            color: studentId == _auth.currentUser?.uid
+                ? Theme.of(context).primaryColor.withOpacity(0.1)
+                : Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                offset: const Offset(2, 2),
+                blurRadius: 4,
+              ),
+            ],
           ),
-          title: Text(student['username'] ?? 'Anonymous'),
-          subtitle: Text('Joined on: $formattedDate'),
-          trailing: studentId == _auth.currentUser?.uid
-              ? const Chip(label: Text('You'), backgroundColor: Colors.green)
-              : null,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).primaryColor,
+              child: Text(student['username'][0].toUpperCase()),
+            ),
+            title: Text(student['username'] ?? 'Anonymous'),
+            subtitle: Text('Joined on: $formattedDate'),
+            trailing: studentId == _auth.currentUser?.uid
+                ? Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'You',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
         );
       },
     );
@@ -146,14 +207,14 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Classroom')),
+        appBar: AppBar(title: const Text('Classroom'), elevation: 0),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Classroom')),
+        appBar: AppBar(title: const Text('Classroom'), elevation: 0),
         body: Center(child: Text(_errorMessage!)),
       );
     }
@@ -166,15 +227,34 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(className),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    offset: const Offset(5, 5),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                  BoxShadow(
+                    color: Colors.grey.shade800,
+                    offset: const Offset(-5, -5),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -183,21 +263,42 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
                       style: const TextStyle(
                           fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    Text('Teacher: $teacherName'),
-                    const SizedBox(height: 8),
-                    Text(description),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.person, size: 16),
+                        const SizedBox(width: 8),
+                        Text('Teacher: $teacherName'),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      description,
+                      style: TextStyle(color: Colors.grey[400], height: 1.5),
+                    ),
                     if (_classroomData!.containsKey('join_code'))
                       Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 16),
                         child: Row(
                           children: [
                             const Text('Join Code: '),
-                            Chip(
-                              label: Text(
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
                                 _classroomData!['join_code'],
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor,
+                                ),
                               ),
                             ),
                           ],
@@ -207,20 +308,57 @@ class _ClassroomDetailsPageState extends State<ClassroomDetailsPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Learning Materials',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 32),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColor.withOpacity(0.6),
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: const Text(
+                'Learning Materials',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            const Divider(),
+            const SizedBox(height: 12),
             _buildMaterialsList(),
-            const SizedBox(height: 24),
-            const Text(
-              'Students',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 32),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColor.withOpacity(0.6),
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: const Text(
+                'Students',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            const Divider(),
+            const SizedBox(height: 12),
             _buildStudentsList(),
+            const SizedBox(height: 24),
           ],
         ),
       ),
