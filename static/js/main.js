@@ -61,3 +61,14 @@ document.addEventListener('DOMContentLoaded', function() {
         alert.prepend(closeBtn);
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const navLinks = document.getElementById('navLinks');
+  
+  if (mobileMenuToggle && navLinks) {
+    mobileMenuToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('active');
+    });
+  }
+});

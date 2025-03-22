@@ -77,5 +77,4 @@ urlpatterns = [
     path('api/quizzes/<int:quiz_id>/submit/', classroom_api.submit_quiz_api, name='submit-quiz-api'),
     path('api/', include(router.urls)),
     path('api/classrooms/<uuid:classroom_id>/', include(classroom_router.urls)),
->>>>>>> Stashed changes
 ]

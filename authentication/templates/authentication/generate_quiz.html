@@ -1,175 +1,16 @@
-{% extends 'authentication/base_logged_in.html' %}
+{% extends "authentication/base_logged_in.html" %}
 {% load static %}
 
-{% block title %}Generate Quiz - SriPedia{% endblock %}
+{% block title %}Upload Files - SriPedia{% endblock %}
 
 {% block extra_css %}
-<style>
-    .quiz-generator {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    
-    .upload-container {
-        background-color: white;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow-md);
-    }
-    
-    .file-input-wrapper {
-        position: relative;
-        width: 100%;
-        height: 200px;
-        border: 2px dashed var(--primary-color);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-    }
-    
-    .file-input-wrapper:hover {
-        background-color: rgba(79, 70, 229, 0.05);
-    }
-    
-    .file-input {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
-    
-    .upload-icon {
-        font-size: 3rem;
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-    }
-    
-    .upload-text {
-        color: var(--text-light);
-    }
-    
-    .file-info {
-        margin-top: 1rem;
-        display: none;
-    }
-    
-    .selected-file {
-        background-color: var(--gray-100);
-        padding: 1rem;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .file-name {
-        font-weight: 600;
-    }
-    
-    .remove-file {
-        color: var(--danger);
-        cursor: pointer;
-    }
-    
-    .generate-btn {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 1rem 2rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        width: 100%;
-    }
-    
-    .generate-btn:hover {
-        background-color: var(--primary-dark);
-    }
-    
-    .generate-btn:disabled {
-        background-color: var(--gray-300);
-        cursor: not-allowed;
-    }
-    
-    .loading-indicator {
-        display: none;
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top: 4px solid var(--primary-color);
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 1rem auto;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .quiz-preview {
-        display: none;
-        background-color: white;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-top: 2rem;
-        box-shadow: var(--shadow-md);
-    }
-    
-    .quiz-actions {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 2rem;
-    }
-    
-    .quiz-actions button {
-        padding: 0.8rem 1.5rem;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    
-    .save-quiz {
-        background-color: var(--success);
-        color: white;
-        border: none;
-    }
-    
-    .edit-quiz {
-        background-color: var(--warning);
-        color: white;
-        border: none;
-    }
-    
-    .error-message {
-        color: var(--danger);
-        background-color: rgba(239, 68, 68, 0.1);
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-        display: none;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/generate_quiz.css' %}?v={% now 'U' %}">
 {% endblock %}
 
 {% block content %}
-<div class="quiz-generator">
-    <h1>Generate Custom Quiz</h1>
-    <p>Upload a document about Sri Lanka and our AI will generate quiz questions based on its content.</p>
+<div class="content-container">
+    <h1>Upload Files</h1>
+    <p>Upload documents about Sri Lanka to save them to your personal collection.</p>
     
     <div class="upload-container">
         <form id="uploadForm" enctype="multipart/form-data">
@@ -178,7 +19,7 @@
                 <input type="file" name="document" id="documentUpload" class="file-input" accept=".pdf,.doc,.docx,.txt">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">Click to browse or drag and drop</div>
-                <div class="upload-text small">(PDF files recommended)</div>
+                <div class="upload-text small">(PDF, Word, and text files supported)</div>
             </div>
             
             <div class="file-info" id="fileInfo">
@@ -188,7 +29,7 @@
                 </div>
             </div>
             
-            <button type="submit" id="generateBtn" class="generate-btn" disabled>Generate Quiz Questions</button>
+            <button type="submit" id="generateBtn" class="generate-btn" disabled>Upload File</button>
         </form>
         
         <div class="error-message" id="errorMessage"></div>
@@ -196,18 +37,8 @@
     
     <div class="loading-indicator" id="loadingIndicator">
         <div class="spinner"></div>
-        <p>Analyzing document and generating questions...</p>
-        <p class="small">This may take a minute depending on document size</p>
-    </div>
-    
-    <div class="quiz-preview" id="quizPreview">
-        <h2>Generated Quiz</h2>
-        <div id="quizQuestions"></div>
-        
-        <div class="quiz-actions">
-            <button class="edit-quiz" id="editQuiz">Edit Questions</button>
-            <button class="save-quiz" id="saveQuiz">Save Quiz</button>
-        </div>
+        <p>Uploading your document...</p>
+        <p class="small">This may take a moment depending on file size</p>
     </div>
 </div>
 {% endblock %}
@@ -222,19 +53,23 @@
         const removeFile = document.getElementById('removeFile');
         const generateBtn = document.getElementById('generateBtn');
         const loadingIndicator = document.getElementById('loadingIndicator');
-        const quizPreview = document.getElementById('quizPreview');
-        const quizQuestions = document.getElementById('quizQuestions');
         const errorMessage = document.getElementById('errorMessage');
         
-        let currentQuiz = null;
+        // Initialize
+        fileInfo.style.display = 'none';
+        loadingIndicator.style.display = 'none';
+        errorMessage.style.display = 'none';
         
-        // File input change
+        // File selection
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 fileName.textContent = file.name;
                 fileInfo.style.display = 'block';
-                generateBtn.disabled = false;
+                generateBtn.disabled = false;  // Enable the button when file is selected
+            } else {
+                fileInfo.style.display = 'none';
+                generateBtn.disabled = true;  // Disable button if no file
             }
         });
         
@@ -242,16 +77,22 @@
         removeFile.addEventListener('click', function() {
             fileInput.value = '';
             fileInfo.style.display = 'none';
-            generateBtn.disabled = true;
+            generateBtn.disabled = true;  // Disable button when file is removed
         });
         
         // Form submission
         uploadForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Check if a file is selected
+            if (!fileInput.files || fileInput.files.length === 0) {
+                errorMessage.textContent = 'Please select a file to upload.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
             // Show loading indicator
-            loadingIndicator.style.display = 'block';
-            quizPreview.style.display = 'none';
+            loadingIndicator.style.display = 'flex';
             errorMessage.style.display = 'none';
             generateBtn.disabled = true;
             
@@ -262,84 +103,51 @@
             fetch('{% url "generate_quiz" %}', {
                 method: 'POST',
                 body: formData,
+                credentials: 'same-origin',
                 headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // If server responds with HTML or other content, just redirect to files page
+                    window.location.href = '{% url "user_files" %}';
+                    return null; // Return null instead of throwing error
+                }
+            })
             .then(data => {
+                // Skip processing if null (already redirected)
+                if (data === null) return;
+                
                 // Hide loading indicator
                 loadingIndicator.style.display = 'none';
                 
-                if (data.success) {
-                    // Show quiz preview
-                    currentQuiz = data;
-                    displayQuizQuestions(data.questions);
-                    quizPreview.style.display = 'block';
-                } else {
+                if (data && data.success) {
+                    // Redirect to the user files page
+                    window.location.href = data.redirect_url || '{% url "user_files" %}';
+                } else if (data) {
                     // Show error message
-                    errorMessage.textContent = data.error || 'An error occurred while generating the quiz.';
+                    errorMessage.textContent = data.error || 'An error occurred while uploading the file.';
                     errorMessage.style.display = 'block';
                     generateBtn.disabled = false;
                 }
             })
             .catch(error => {
-                // Hide loading indicator
-                loadingIndicator.style.display = 'none';
+                console.error('Upload error:', error);
                 
-                // Show error message
-                errorMessage.textContent = 'Network error. Please try again.';
+                // Hide loading indicator and show error
+                loadingIndicator.style.display = 'none';
+                errorMessage.textContent = error.message || 'An error occurred during upload.';
                 errorMessage.style.display = 'block';
                 generateBtn.disabled = false;
-                
-                console.error('Error:', error);
             });
-        });
-        
-        function displayQuizQuestions(questions) {
-            quizQuestions.innerHTML = '';
-            
-            questions.forEach((q, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'quiz-card';
-                
-                const questionHTML = `
-                    <div class="question-number">Question ${index + 1}</div>
-                    <div class="question-text">${q.question}</div>
-                    
-                    <ul class="options-list">
-                        ${q.options.map((option, optIndex) => `
-                            <li class="option-item">
-                                <div class="option-label ${optIndex === q.correct_index ? 'correct-answer' : ''}">
-                                    <div class="option-text">${option}</div>
-                                    ${optIndex === q.correct_index ? '<div class="correct-indicator">✓</div>' : ''}
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
-                `;
-                
-                questionDiv.innerHTML = questionHTML;
-                quizQuestions.appendChild(questionDiv);
-            });
-        }
-        
-        // Edit quiz button
-        document.getElementById('editQuiz').addEventListener('click', function() {
-            // In a real application, you would implement an edit interface here
-            alert('Quiz editing functionality would be implemented here.');
-        });
-        
-        // Save quiz button
-        document.getElementById('saveQuiz').addEventListener('click', function() {
-            // In a real application, this would save to the database
-            alert('Quiz saved successfully!');
-            
-            // Reset the form
-            fileInput.value = '';
-            fileInfo.style.display = 'none';
-            generateBtn.disabled = true;
-            quizPreview.style.display = 'none';
         });
     });
 </script>
