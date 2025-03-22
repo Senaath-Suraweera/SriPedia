@@ -318,11 +318,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               showBadge: true,
                             ),
                             FeatureCard(
-                              title: 'Store',
-                              icon: Icons.store,
+                              title: 'Timeline',
+                              icon: Icons.timeline,
                               color: Colors.green,
                               onTap: () =>
-                                  Navigator.pushNamed(context, '/store'),
+                                  Navigator.pushNamed(context, '/timeline'),
                             ),
                           ],
                         ),

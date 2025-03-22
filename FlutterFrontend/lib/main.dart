@@ -16,6 +16,7 @@ import 'pages/classroom_join_page.dart';
 import 'pages/classroom_details_page.dart';
 import 'pages/my_classrooms_page.dart';
 import 'providers/user_provider.dart';
+import 'screens/timeline_screen.dart'; // Add this import
 
 // Define app theme constants
 class AppTheme {
@@ -91,7 +92,7 @@ class MyApp extends StatelessWidget {
         '/quiz': (context) => const DailyQuizScreen(),
         '/leaderboard': (context) => const LeaderboardScreen(),
         '/classrooms': (context) => const MyClassroomsPage(),
-        '/store': (context) => const PlaceholderScreen(title: 'Store'),
+        '/timeline': (context) => const TimelineScreen(),
         '/chatbot': (context) => const PlaceholderScreen(title: 'AI Chatbot'),
         '/join_classroom': (context) => const ClassroomJoinPage(),
         '/classroom_details': (context) => ClassroomDetailsPage(
