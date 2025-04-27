@@ -1,0 +1,9 @@
+tiktoken
+langchain
+openai
+PyPDF2
+langchain-community
+qdrant_client
+flask
+flask-restful
+flasgger
